@@ -89,7 +89,6 @@ canvas{display:block;}
     0 0 180px rgba(0,200,255,0.5);
   animation:titlePulse 2.4s ease-in-out infinite;
   margin-bottom:4px;position:relative;
-  /* Pseudo glitch */
 }
 .menu-title::before{
   content:attr(data-text);position:absolute;top:0;left:3px;
@@ -122,7 +121,6 @@ canvas{display:block;}
   50%{text-shadow:0 0 30px #0ff,0 0 80px #0ff,0 0 160px #0ff,0 0 240px rgba(0,180,255,0.4);}
 }
 
-/* Version tag */
 .menu-version{
   font-family:'Share Tech Mono',monospace;
   font-size:9px;letter-spacing:5px;color:rgba(0,255,255,0.35);
@@ -191,7 +189,6 @@ canvas{display:block;}
   text-shadow:0 0 10px #0ff,0 0 25px rgba(0,255,255,0.5);
 }
 
-/* Divider line in menus */
 .menu-line{
   width:220px;height:1px;margin:8px 0 20px;
   background:linear-gradient(90deg,transparent,rgba(0,255,255,0.4),transparent);
@@ -333,12 +330,220 @@ canvas{display:block;}
   pointer-events:none;opacity:0;transition:opacity 0.35s;
 }
 
-/* ── LEVEL BADGE (shows current level elegantly) ── */
+/* ── LEVEL BADGE ── */
 #_lvlBadge{
   position:absolute;top:8px;left:50%;transform:translateX(-50%);
   z-index:5;font-family:'Share Tech Mono',monospace;font-size:9px;
   letter-spacing:4px;color:rgba(255,255,255,0.2);
   pointer-events:none;
+}
+
+/* ══════════════════════════════════════════════════
+   MOBILE CONTROLS — Elite Redesign
+   ══════════════════════════════════════════════════ */
+#mobileControls {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 190px;
+  z-index: 100;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  #mobileControls { display: block; }
+  #gameContainer {
+    width: 100vw !important;
+    height: calc(100vh - 190px) !important;
+  }
+  #gameContainer canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+.ctrl-zone {
+  position: absolute;
+  bottom: 0;
+  pointer-events: all;
+  display: flex;
+  align-items: flex-end;
+}
+
+#ctrlLeft  { left: 18px; flex-direction: row; align-items: flex-end; gap: 10px; padding-bottom: 18px; }
+#ctrlRight { right: 18px; flex-direction: column; align-items: center; gap: 10px; padding-bottom: 18px; }
+
+.ctrl-btn {
+  border-radius: 50%;
+  border: 2px solid rgba(0,255,255,0.4);
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: all;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.1s, border-color 0.1s, background 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle inner rim */
+.ctrl-btn::before {
+  content: '';
+  position: absolute; inset: 4px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,255,255,0.1);
+  pointer-events: none;
+  transition: border-color 0.1s;
+}
+.ctrl-btn.pressed::before {
+  border-color: rgba(0,255,255,0.4);
+}
+
+/* Glow fill on press */
+.ctrl-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,255,255,0.0) 0%, transparent 70%);
+  transition: background 0.12s;
+  pointer-events: none;
+}
+.ctrl-btn.pressed::after {
+  background: radial-gradient(circle, rgba(0,255,255,0.14) 0%, transparent 70%);
+}
+
+/* ── Move buttons — neon cyan ── */
+#btnLeft, #btnRight {
+  width: 74px; height: 74px;
+  box-shadow: 0 0 8px rgba(0,255,255,0.12), inset 0 0 10px rgba(0,0,0,0.6);
+}
+#btnLeft.pressed, #btnRight.pressed {
+  transform: scale(0.87);
+  border-color: rgba(0,255,255,0.95);
+  box-shadow: 0 0 22px rgba(0,255,255,0.65), 0 0 50px rgba(0,255,255,0.22), inset 0 0 12px rgba(0,255,255,0.1);
+  background: rgba(0,20,20,0.65);
+}
+
+/* ── Jump button — magenta, biggest ── */
+#btnJump {
+  width: 84px; height: 84px;
+  border-color: rgba(255,0,200,0.45);
+  background: rgba(8,0,10,0.6);
+  box-shadow: 0 0 12px rgba(255,0,200,0.18), inset 0 0 12px rgba(0,0,0,0.6);
+}
+#btnJump::before { border-color: rgba(255,0,200,0.12); }
+#btnJump::after  { background: radial-gradient(circle, rgba(255,0,200,0.0) 0%, transparent 70%); }
+#btnJump.pressed {
+  transform: scale(0.86);
+  border-color: rgba(255,0,255,0.95);
+  box-shadow: 0 0 28px rgba(255,0,255,0.72), 0 0 60px rgba(255,0,255,0.22), inset 0 0 14px rgba(255,0,200,0.15);
+  background: rgba(15,0,15,0.7);
+}
+#btnJump.pressed::after { background: radial-gradient(circle, rgba(255,0,200,0.18) 0%, transparent 70%); }
+
+/* ── Fly button — electric blue, owner only ── */
+#btnFly {
+  width: 62px; height: 62px;
+  border-color: rgba(60,140,255,0.45);
+  background: rgba(0,4,18,0.6);
+  box-shadow: 0 0 10px rgba(60,140,255,0.15), inset 0 0 10px rgba(0,0,0,0.6);
+  display: none;
+}
+#btnFly::before { border-color: rgba(60,140,255,0.1); }
+#btnFly.owner-visible { display: flex; }
+#btnFly.pressed {
+  transform: scale(0.87);
+  border-color: rgba(100,180,255,0.95);
+  box-shadow: 0 0 24px rgba(80,160,255,0.72), 0 0 55px rgba(60,140,255,0.25);
+}
+#btnFly.fly-active {
+  border-color: rgba(100,200,255,0.8);
+  box-shadow: 0 0 20px rgba(80,180,255,0.55), 0 0 45px rgba(60,160,255,0.2);
+  animation: flyActivePulse 1.4s ease-in-out infinite;
+}
+@keyframes flyActivePulse {
+  0%,100% { box-shadow: 0 0 14px rgba(80,180,255,0.5), 0 0 35px rgba(60,160,255,0.15); }
+  50%      { box-shadow: 0 0 28px rgba(100,200,255,0.8), 0 0 65px rgba(80,180,255,0.28); }
+}
+
+/* ── Immortal / Shield button — gold, owner only ── */
+#btnImmort {
+  width: 66px; height: 66px;
+  border-color: rgba(220,170,0,0.4);
+  background: rgba(10,7,0,0.62);
+  box-shadow: 0 0 10px rgba(220,170,0,0.12), inset 0 0 10px rgba(0,0,0,0.6);
+  display: none;
+}
+#btnImmort::before { border-color: rgba(220,170,0,0.1); }
+#btnImmort.owner-visible { display: flex; }
+#btnImmort.pressed {
+  transform: scale(0.87);
+  border-color: rgba(255,220,0,0.95);
+  box-shadow: 0 0 24px rgba(255,200,0,0.72), 0 0 55px rgba(220,160,0,0.25);
+}
+#btnImmort.immort-active {
+  border-color: rgba(255,220,0,0.85);
+  background: rgba(20,14,0,0.7);
+  animation: shieldPulse 1.2s ease-in-out infinite;
+}
+@keyframes shieldPulse {
+  0%,100% { box-shadow: 0 0 16px rgba(255,200,0,0.55), 0 0 40px rgba(220,160,0,0.18); }
+  50%      { box-shadow: 0 0 32px rgba(255,220,0,0.85), 0 0 72px rgba(255,180,0,0.3); }
+}
+
+/* ── Right column bottom row: immortal + jump ── */
+#ctrlRightBottom {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Redeem button — TOP RIGHT corner ── */
+#_redeemBtn {
+  position: fixed !important;
+  top: 10px !important;
+  right: 10px !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 200 !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 1px !important;
+  color: rgba(0,255,255,0.2) !important;
+  background: rgba(0,0,0,0.55) !important;
+  border: 1px solid rgba(0,255,255,0.08) !important;
+  padding: 5px 10px !important;
+  cursor: pointer !important;
+  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s !important;
+}
+#_redeemBtn:hover {
+  color: rgba(0,255,255,0.65) !important;
+  border-color: rgba(0,255,255,0.35) !important;
+  box-shadow: 0 0 10px rgba(0,255,255,0.12) !important;
+}
+
+/* Priv badge top-right */
+#_privBadge {
+  position: fixed !important;
+  top: 36px !important;
+  right: 10px !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 200 !important;
+}
+#_privFlash {
+  position: fixed !important;
+  top: 62px !important;
+  right: 10px !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 200 !important;
 }
 </style>
 </head>
@@ -433,6 +638,122 @@ canvas{display:block;}
 </div>
 
 <!-- ═══════════════════════════════════════════════
+     MOBILE CONTROLS — Elite Layout
+     ═══════════════════════════════════════════════ -->
+<div id="mobileControls">
+
+  <!-- LEFT ZONE: move left + move right -->
+  <div class="ctrl-zone" id="ctrlLeft">
+
+    <button class="ctrl-btn" id="btnLeft" aria-label="Move Left">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <defs>
+          <filter id="f1" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="2" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <polygon points="24,6 10,17 24,28" fill="rgba(0,255,255,0.92)" filter="url(#f1)"/>
+        <line x1="10" y1="6" x2="10" y2="28" stroke="rgba(0,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <button class="ctrl-btn" id="btnRight" aria-label="Move Right">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <defs>
+          <filter id="f2" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="2" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <polygon points="10,6 24,17 10,28" fill="rgba(0,255,255,0.92)" filter="url(#f2)"/>
+        <line x1="24" y1="6" x2="24" y2="28" stroke="rgba(0,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+  </div>
+
+  <!-- RIGHT ZONE: Fly (top, owner only) · then [Immortal] [Jump] row -->
+  <div class="ctrl-zone" id="ctrlRight">
+
+    <!-- FLY — owner only, sits above jump -->
+    <button class="ctrl-btn" id="btnFly" aria-label="Fly">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+        <defs>
+          <filter id="fBlue" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="2.2" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Double chevron up = fly / double-jump icon -->
+        <polyline points="5,22 15,11 25,22" stroke="rgba(100,190,255,0.95)" stroke-width="2.8"
+          stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#fBlue)"/>
+        <polyline points="5,15 15,4 25,15" stroke="rgba(160,220,255,0.65)" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- Small dot at tip -->
+        <circle cx="15" cy="4" r="1.8" fill="rgba(200,240,255,0.8)"/>
+      </svg>
+    </button>
+
+    <!-- Bottom row: immortal shield (left) + jump (right) -->
+    <div id="ctrlRightBottom">
+
+      <!-- IMMORTAL shield — owner only -->
+      <button class="ctrl-btn" id="btnImmort" aria-label="Immortal Shield">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <defs>
+            <filter id="fGold" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="rgba(255,230,80,0.9)"/>
+              <stop offset="100%" stop-color="rgba(200,140,0,0.9)"/>
+            </linearGradient>
+          </defs>
+          <!-- Shield outline -->
+          <path d="M16 3 L27 7.5 L27 16 C27 22.5 22 27.5 16 29.5 C10 27.5 5 22.5 5 16 L5 7.5 Z"
+                stroke="url(#shieldGrad)" stroke-width="2" fill="rgba(255,190,0,0.1)"
+                stroke-linejoin="round" filter="url(#fGold)"/>
+          <!-- Checkmark inside shield -->
+          <polyline points="11,16 14.5,19.5 21,13" stroke="rgba(255,230,80,0.95)"
+                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <!-- Star accent at top -->
+          <circle cx="16" cy="10" r="2" fill="rgba(255,220,60,0.7)"/>
+        </svg>
+      </button>
+
+      <!-- JUMP — main action button -->
+      <button class="ctrl-btn" id="btnJump" aria-label="Jump">
+        <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+          <defs>
+            <filter id="fMag" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.5" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <linearGradient id="jumpGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+              <stop offset="0%" stop-color="rgba(255,80,220,0.95)"/>
+              <stop offset="100%" stop-color="rgba(200,0,180,0.85)"/>
+            </linearGradient>
+          </defs>
+          <!-- Outer orbit ring -->
+          <circle cx="19" cy="19" r="13" stroke="rgba(255,0,200,0.25)" stroke-width="1.5"
+            fill="none" stroke-dasharray="5 3"/>
+          <!-- Arrow body -->
+          <polygon points="19,5 30,21 8,21" fill="url(#jumpGrad)" filter="url(#fMag)"/>
+          <!-- Stem -->
+          <rect x="16.5" y="21" width="5" height="7" rx="2.5" fill="rgba(255,0,200,0.65)"/>
+          <!-- Glow dot at tip -->
+          <circle cx="19" cy="5" r="2.5" fill="rgba(255,160,240,0.8)"/>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+
+</div><!-- /mobileControls -->
+
+<!-- ═══════════════════════════════════════════════
      ORIGINAL GAME SCRIPT — 100% UNTOUCHED
      ═══════════════════════════════════════════════ -->
 <script>
@@ -497,77 +818,52 @@ const p=(x,y,w,o={})=>({x,y,w,h:18,...o});
 const ob=(x,y)=>({x,y,r:10});
 const sp=(x,y,w)=>({x,y,w,h:16});
 
-// COORDINATE SYSTEM — final verified values:
-//  spike.y  = platY - 16  (base flush with platform top, tip pointing up)
-//  orb.y    = platY - 14  (centre at player chest height, collected while walking)
-//  goal.y   = platY - 14  (portal at player centre, walk straight in)
-//  start.y  = platY - 28  (player feet on ground)
-
 const LEVELS=[
-  // L1 BOOT SEQUENCE — ground=492, plats: 436@x460, 380@x632, 325@x802, 436@x992, 375@x1112, 344@x1362
   {name:'BOOT SEQUENCE',bgHue:180,
    platforms:[p(0,492,420),p(460,436,120),p(632,380,110),p(802,325,120),p(992,436,100),p(1112,375,200),p(1362,344,160)],
    orbs:[ob(200,478),ob(510,422),ob(850,311),ob(1050,422),ob(1200,361),ob(1440,330)],
    spikes:[],
    start:{x:50,y:464},goal:{x:1490,y:330}},
-
-  // L2 GRID NETWORK — ground=492, plats: 436@362, 380@512, 436@662, 348@792, 400@942, 318@1092, 368@1262, 300@1412, 348@1612
   {name:'GRID NETWORK',bgHue:200,
    platforms:[p(0,492,300),p(362,436,100),p(512,380,100),p(662,436,80),p(792,348,100),p(942,400,100),p(1092,318,120),p(1262,368,100),p(1412,300,150),p(1612,348,120)],
    orbs:[ob(150,478),ob(410,422),ob(840,334),ob(1000,386),ob(1150,304),ob(1460,286),ob(1660,334)],
    spikes:[sp(702,420,56)],
    start:{x:50,y:464},goal:{x:1680,y:334}},
-
-  // L3 PHASE SHIFT — ground=492, plats: mov424@382, 370@572, mov424@712, 348@912, mov400@1112, 318@1312, mov378@1492, 298@1662
   {name:'PHASE SHIFT',bgHue:260,
    platforms:[p(0,492,300),p(382,424,100,{type:'moving',moveX:80,speed:1.2}),p(572,370,90),p(712,424,90,{type:'moving',moveX:60,speed:1.5}),p(912,348,120),p(1112,400,80,{type:'moving',moveX:100,speed:1.0}),p(1312,318,100),p(1492,378,80,{type:'moving',moveX:70,speed:1.8}),p(1662,298,150)],
    orbs:[ob(150,478),ob(432,410),ob(617,356),ob(762,410),ob(970,334),ob(1360,304),ob(1710,284)],
    spikes:[sp(616,354,48),sp(962,332,38)],
    start:{x:50,y:464},goal:{x:1740,y:284}},
-
-  // L4 DECAY PROTOCOL — ground=492, plats: crumble436@372, crumble390@532, 436@692, crumble378@832, 328@972, crumble378@1132, 328@1292, crumble378@1472, 298@1612
   {name:'DECAY PROTOCOL',bgHue:300,
    platforms:[p(0,492,300),p(372,436,100,{type:'crumble'}),p(532,390,90,{type:'crumble'}),p(692,436,90),p(832,378,80,{type:'crumble'}),p(972,328,120),p(1132,378,90,{type:'crumble'}),p(1292,328,100),p(1472,378,80,{type:'crumble'}),p(1612,298,180)],
    orbs:[ob(150,478),ob(580,376),ob(730,422),ob(1020,314),ob(1330,314),ob(1680,284)],
    spikes:[sp(740,420,48),sp(1016,312,38)],
    start:{x:50,y:464},goal:{x:1700,y:284}},
-
-  // L5 SPIKE MATRIX — ground=492, plats: 420@372, 368@512, 420@672, 358@812, 420@972, 348@1112, mov398@1292, 328@1462, crumble378@1652, 308@1792
   {name:'SPIKE MATRIX',bgHue:0,
    platforms:[p(0,492,300),p(372,420,80),p(512,368,100),p(672,420,80),p(812,358,100),p(972,420,80),p(1112,348,120),p(1292,398,80,{type:'moving',moveX:60,speed:1.6}),p(1462,328,100),p(1652,378,80,{type:'crumble'}),p(1792,308,160)],
    orbs:[ob(560,354),ob(860,344),ob(1160,334),ob(1500,314),ob(1840,294)],
    spikes:[sp(386,404,38),sp(530,352,38),sp(830,342,38),sp(1130,332,38),sp(1670,362,38)],
    start:{x:50,y:464},goal:{x:1880,y:294}},
-
-  // L6 MULTI-PATH — ground=492, plats: mov388@352, crumble440@532, 378@672, crumble440@822, mov358@952, crumble430@1132, 358@1272, mov308@1432, crumble358@1612, 278@1752
   {name:'MULTI-PATH',bgHue:140,
    platforms:[p(0,492,280),p(352,388,80,{type:'moving',moveX:80,speed:1.4}),p(532,440,80,{type:'crumble'}),p(672,378,90),p(822,440,80,{type:'crumble'}),p(952,358,120,{type:'moving',moveX:100,speed:1.2}),p(1132,430,80,{type:'crumble'}),p(1272,358,90),p(1432,308,90,{type:'moving',moveX:80,speed:2.0}),p(1612,358,80,{type:'crumble'}),p(1752,278,180)],
    orbs:[ob(140,478),ob(395,374),ob(710,364),ob(1005,344),ob(1460,294),ob(1840,264)],
    spikes:[sp(570,424,38),sp(860,424,38),sp(1170,414,38),sp(1650,342,38)],
    start:{x:50,y:464},goal:{x:1840,y:264}},
-
-  // L7 VELOCITY GRID — ground=468, plats: mov408@292, mov358@492, 408@692, mov348@832, crumble398@1032, mov328@1172, crumble378@1392, mov298@1532, crumble348@1732, 258@1872
   {name:'VELOCITY GRID',bgHue:220,
    platforms:[p(0,468,200),p(292,408,80,{type:'moving',moveX:120,speed:2.5}),p(492,358,70,{type:'moving',moveX:90,speed:2.8}),p(692,408,80),p(832,348,80,{type:'moving',moveX:110,speed:3.0}),p(1032,398,80,{type:'crumble'}),p(1172,328,90,{type:'moving',moveX:100,speed:2.2}),p(1392,378,80,{type:'crumble'}),p(1532,298,100,{type:'moving',moveX:80,speed:2.6}),p(1732,348,80,{type:'crumble'}),p(1872,258,180)],
    orbs:[ob(100,454),ob(332,394),ob(527,344),ob(730,394),ob(1210,314),ob(1575,284),ob(1940,244)],
    spikes:[sp(710,392,48),sp(1070,382,38),sp(1430,362,38),sp(1770,332,38)],
    start:{x:50,y:440},goal:{x:1960,y:244}},
-
-  // L8 CRUMBLE STORM — ground=468, plats: crumble408@262, crumble358@402, crumble308@542, 358@682, crumble308@822, mov358@962, crumble298@1142, mov348@1282, crumble278@1462, mov328@1602, 258@1782
   {name:'CRUMBLE STORM',bgHue:30,
    platforms:[p(0,468,180),p(262,408,70,{type:'crumble'}),p(402,358,70,{type:'crumble'}),p(542,308,70,{type:'crumble'}),p(682,358,80),p(822,308,70,{type:'crumble'}),p(962,358,80,{type:'moving',moveX:100,speed:2.0}),p(1142,298,70,{type:'crumble'}),p(1282,348,80,{type:'moving',moveX:90,speed:2.5}),p(1462,278,70,{type:'crumble'}),p(1602,328,80,{type:'moving',moveX:80,speed:3.0}),p(1782,258,200)],
    orbs:[ob(90,454),ob(295,394),ob(436,344),ob(575,294),ob(715,344),ob(1180,284),ob(1830,244)],
    spikes:[sp(692,342,38),sp(1012,342,38),sp(1652,312,38)],
    start:{x:50,y:440},goal:{x:1880,y:244}},
-
-  // L9 SYSTEM BREACH — ground=468, plats: mov398@232, crumble348@412, mov398@552, crumble328@732, mov388@882, crumble308@1072, mov368@1212, crumble288@1402, mov348@1542, crumble268@1732, 218@1872
   {name:'SYSTEM BREACH',bgHue:280,
    platforms:[p(0,468,160),p(232,398,70,{type:'moving',moveX:80,speed:2.5}),p(412,348,60,{type:'crumble'}),p(552,398,70,{type:'moving',moveX:70,speed:3.2}),p(732,328,70,{type:'crumble'}),p(882,388,70,{type:'moving',moveX:100,speed:2.8}),p(1072,308,70,{type:'crumble'}),p(1212,368,70,{type:'moving',moveX:80,speed:3.5}),p(1402,288,70,{type:'crumble'}),p(1542,348,70,{type:'moving',moveX:90,speed:2.4}),p(1732,268,80,{type:'crumble'}),p(1872,218,180)],
    orbs:[ob(80,454),ob(265,384),ob(587,384),ob(766,314),ob(917,374),ob(1245,354),ob(1577,334),ob(1940,204)],
    spikes:[sp(442,332,38),sp(772,312,38),sp(1112,292,38),sp(1442,272,38),sp(1770,252,38)],
    start:{x:50,y:440},goal:{x:1960,y:204}},
-
-  // L10 CORE OVERLOAD — ground=468, plats: mov388@222, crumble328@412, mov388@552, crumble308@712, mov378@862, crumble288@1052, mov358@1192, crumble268@1382, mov338@1522, crumble238@1712, mov298@1852, 178@1992
   {name:'CORE OVERLOAD',bgHue:350,
    platforms:[p(0,468,140),p(222,388,60,{type:'moving',moveX:100,speed:3.5}),p(412,328,60,{type:'crumble'}),p(552,388,60,{type:'moving',moveX:80,speed:4.0}),p(712,308,60,{type:'crumble'}),p(862,378,60,{type:'moving',moveX:110,speed:3.0}),p(1052,288,60,{type:'crumble'}),p(1192,358,60,{type:'moving',moveX:90,speed:4.2}),p(1382,268,60,{type:'crumble'}),p(1522,338,60,{type:'moving',moveX:80,speed:3.8}),p(1712,238,70,{type:'crumble'}),p(1852,298,60,{type:'moving',moveX:60,speed:4.5}),p(1992,178,250)],
    orbs:[ob(70,454),ob(252,374),ob(582,374),ob(742,294),ob(892,364),ob(1222,344),ob(1552,324),ob(1882,284),ob(2110,164)],
@@ -674,7 +970,6 @@ function updP(dt){
   const rgt=K['ArrowRight']||K['KeyD'];
   const jmp=JP['Space']||JP['ArrowUp']||JP['KeyW'];
 
-  // Horizontal
   const tVX=rgt?SPD:lft?-SPD:0;
   if(tVX!==0){
     const a=ACC*dt;
@@ -686,20 +981,16 @@ function updP(dt){
     else P.vx-=Math.sign(P.vx)*d;
   }
 
-  // Gravity — variable height
   if(P.vy<0&&!(K['Space']||K['ArrowUp']||K['KeyW'])) P.vy+=GR*1.7*dt;
   else P.vy+=GR*dt;
   P.vy=Math.min(P.vy,MXF);
 
-  // Coyote
   if(P.onGnd) P.coyT=COY;
   else if(P.coyT>0) P.coyT-=dt;
 
-  // Jump buffer
   if(jmp) P.jBufT=JBF;
   else if(P.jBufT>0) P.jBufT-=dt;
 
-  // Jump fire
   if(P.jBufT>0){
     if(P.coyT>0||P.onGnd){
       P.vy=JF; P.jumps=1; P.coyT=0; P.jBufT=0;
@@ -710,19 +1001,15 @@ function updP(dt){
     }
   }
 
-  // Integrate
   P.x+=P.vx*dt; P.y+=P.vy*dt;
   const wasGnd=P.onGnd;
   P.onGnd=false;
 
-  // Collision — vertical pass first (landing & ceiling)
   plats.forEach(pl=>{
     if(pl.crumbled) return;
     if(!hit(P.x,P.y,PW,PH,pl.x,pl.y,pl.w,pl.h)) return;
-
     const top=P.y+PH-pl.y;
     const bot=pl.y+pl.h-P.y;
-
     if(P.vy>=0&&top<=32&&top<bot){
       P.y=pl.y-PH; P.vy=0; P.onGnd=true; P.jumps=2; P.coyT=COY;
       if(!wasGnd){
@@ -736,7 +1023,6 @@ function updP(dt){
     }
   });
 
-  // Collision — horizontal pass (wall slide)
   plats.forEach(pl=>{
     if(pl.crumbled) return;
     if(!hit(P.x,P.y,PW,PH,pl.x,pl.y,pl.w,pl.h)) return;
@@ -752,12 +1038,10 @@ function updP(dt){
     }
   });
 
-  // Spikes
   spkList.forEach(sk=>{
     if(hit(P.x+3,P.y+4,PW-6,PH-5,sk.x,sk.y,sk.w,sk.h)) killP();
   });
 
-  // Orbs
   orbList.forEach(o=>{
     if(o.collected) return;
     const dx=P.x+PW/2-o.x, dy=P.y+PH/2-o.y;
@@ -769,7 +1053,6 @@ function updP(dt){
     }
   });
 
-  // Goal
   if(goal&&goal.active&&!lvlDone){
     const dx=P.x+PW/2-goal.x, dy=P.y+PH/2-goal.y;
     if(dx*dx+dy*dy<34*34){
@@ -781,10 +1064,8 @@ function updP(dt){
     }
   }
 
-  // Fall off bottom
   if(P.y>H+160) killP();
 
-  // Trail
   P.trailT+=dt;
   if(Math.abs(P.vx)>65&&P.trailT>0.032){
     P.trailT=0; burst(P.x+PW/2,P.y+PH/2,3,_CUBE_COLOR,0.8,0.22,3,0);
@@ -792,14 +1073,11 @@ function updP(dt){
 
   P.glowT+=dt*3;
 
-  // Combo decay
   if(comboT>0){ comboT-=dt; if(comboT<=0) combo=1; }
 
-  // Camera
   camXT=Math.max(0,P.x-W/3);
   camX+=(camXT-camX)*Math.min(1,dt*7);
 
-  // ── NEW: Checkpoint touch detection ──────
   _checkCheckpoints();
 }
 
@@ -817,7 +1095,6 @@ function killP(){
       if(score>hiScore){ hiScore=score; localStorage.setItem('cubix_hi',hiScore); }
       STATE='gameover'; showGO();
     } else {
-      // ── NEW: Respawn at checkpoint instead of level start ──
       _respawnAtCheckpoint();
     }
   },900);
@@ -876,7 +1153,6 @@ function drwPlat(pl){
   CX.restore();
 }
 
-// ── Draw spike ───────────────────────────────
 function drwSpike(sk){
   const x=Math.round(sk.x-camX),y=sk.y,n=Math.floor(sk.w/16);
   CX.save(); CX.shadowBlur=16; CX.shadowColor='#f44'; CX.fillStyle='#f44';
@@ -888,7 +1164,6 @@ function drwSpike(sk){
   CX.restore();
 }
 
-// ── Draw orb ─────────────────────────────────
 function drwOrb(o){
   if(o.collected) return;
   o.bobT+=0.027;
@@ -902,7 +1177,6 @@ function drwOrb(o){
   CX.restore();
 }
 
-// ── Draw goal ────────────────────────────────
 function drwGoal(){
   if(!goal||!goal.active) return;
   goal.t+=0.045;
@@ -926,7 +1200,6 @@ function drwGoal(){
   CX.restore();
 }
 
-// ── Draw player ──────────────────────────────
 function drwP(){
   if(P.dead) return;
   const x=Math.round(P.x-camX), y=Math.round(P.y);
@@ -946,7 +1219,6 @@ function drwP(){
   CX.restore();
 }
 
-// ── HUD ──────────────────────────────────────
 function drwHUD(){
   CX.save();
   for(let i=0;i<lives;i++){
@@ -974,7 +1246,6 @@ function drwHUD(){
   CX.restore();
 }
 
-// ── Scanlines ────────────────────────────────
 (()=>{
   const sl=document.getElementById('scanlineCanvas');
   const sc=sl.getContext('2d');
@@ -982,7 +1253,6 @@ function drwHUD(){
   for(let y=0;y<H;y+=2) sc.fillRect(0,y,W,1);
 })();
 
-// ── Main loop ────────────────────────────────
 let last=0;
 function loop(ts){
   requestAnimationFrame(loop);
@@ -1006,7 +1276,6 @@ function loop(ts){
   }
 }
 
-// ── Title BG animation ───────────────────────
 function drwTitle(ts){
   const t=ts/1000;
   CX.fillStyle='#000'; CX.fillRect(0,0,W,H);
@@ -1029,7 +1298,6 @@ function drwTitle(ts){
   }
 }
 
-// ── Menu helpers ─────────────────────────────
 function showMenu(id){
   ['mainMenu','pauseMenu','lcMenu','goMenu','winMenu']
     .forEach(m=>document.getElementById(m).classList.add('hidden'));
@@ -1056,14 +1324,11 @@ function showGO(){
 }
 function startGame(from=0){
   lvlIdx=from; score=0; lives=3; combo=1; comboT=0; dying=false;
-  // NEW: clear checkpoint on fresh start
   _cpX=null; _cpY=null; _cpLvl=null;
   initLvl(lvlIdx); STATE='playing'; showMenu(null); startAmbient();
-  // NEW: show resume button after first start
   _gameStarted=true; _saveResume();
 }
 
-// ── Button wiring ────────────────────────────
 document.getElementById('bPlay').onclick=()=>startGame(0);
 document.getElementById('bHelp').onclick=()=>{
   const b=document.getElementById('ctrlBox');
@@ -1083,7 +1348,6 @@ document.getElementById('bNext').onclick=()=>{
 };
 document.getElementById('bLCQ').onclick=()=>{ STATE='menu'; _showMainMenu(); };
 document.getElementById('bRe').onclick=()=>{
-  // NEW: retry respawns at checkpoint
   lives=3; dying=false; _respawnAtCheckpoint(); STATE='playing'; showMenu(null);
 };
 document.getElementById('bGOQ').onclick=()=>{ STATE='menu'; _showMainMenu(); };
@@ -1097,7 +1361,6 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-// ── Boot ─────────────────────────────────────
 document.getElementById('hiV').textContent=hiScore;
 showMenu('mainMenu');
 requestAnimationFrame(ts=>{ last=ts; loop(ts); });
@@ -1106,17 +1369,13 @@ requestAnimationFrame(ts=>{ last=ts; loop(ts); });
 <!-- ═══════════════════════════════════════════════
      NEW FEATURES — injected cleanly below original
      ═══════════════════════════════════════════════ -->
-
-<!-- NEW FEATURES -->
 <script>
 'use strict';
 
 // ═══════════════════════════════════════════════
-//  CUBIX — NEW FEATURES BLOCK (clean rewrite)
-//  All variables declared at top to avoid TDZ
+//  CUBIX — NEW FEATURES BLOCK
 // ═══════════════════════════════════════════════
 
-// ── Checkpoint state (must be first to avoid TDZ) ──
 let _cpX = null, _cpY = null, _cpLvl = null, _cpTouched = [];
 
 // ══════════════════════════════
@@ -1136,13 +1395,11 @@ const SWATCHES = [
   { name:'Original',     hex:'#0099ee', light:'#0099ee', dark:'#0044cc', stroke:'rgba(0,153,238,0.22)'  },
 ];
 
-// Premium skin unlock state
 const _SILVER_KEY = 'cubix_silver_unlocked';
 const _GOLD_KEY   = 'cubix_gold_unlocked';
 function _isSilverUnlocked(){ return localStorage.getItem(_SILVER_KEY)==='1'; }
 function _isGoldUnlocked()  { return localStorage.getItem(_GOLD_KEY)==='1'; }
 
-// Safe swatch index — clamp to 0-9 only (10/11 handled separately)
 let _cubeSwatchIdx = parseInt(localStorage.getItem('cubix_swatch')||'9');
 if(isNaN(_cubeSwatchIdx)||_cubeSwatchIdx<0||_cubeSwatchIdx>9) _cubeSwatchIdx=9;
 
@@ -1152,7 +1409,6 @@ let _cubeDark    = SWATCHES[_cubeSwatchIdx].dark;
 let _cubeStroke  = SWATCHES[_cubeSwatchIdx].stroke;
 let _cubeHUDFill = 'rgba(0,255,255,0.16)';
 
-// Are we using a premium skin?
 let _usingSilver = false;
 let _usingGold   = false;
 
@@ -1168,7 +1424,6 @@ function _applyColor(idx){
   _usingSilver = false; _usingGold = false;
   if(idx===10 && _isSilverUnlocked()){ _usingSilver=true; _CUBE_COLOR='#c8d8e8'; _cubeLight='#f0f4f8'; _cubeDark='#7090a8'; _cubeStroke='rgba(200,220,240,0.25)'; _cubeHUDFill='rgba(200,220,240,0.16)'; localStorage.setItem('cubix_swatch',10); _renderWardrobePreview(); return; }
   if(idx===11 && _isGoldUnlocked()){ _usingGold=true; _CUBE_COLOR='#ffd700'; _cubeLight='#ffe066'; _cubeDark='#7a5500'; _cubeStroke='rgba(255,215,0,0.28)'; _cubeHUDFill='rgba(255,215,0,0.16)'; localStorage.setItem('cubix_swatch',11); _renderWardrobePreview(); return; }
-  // fallback to index 9 if premium not unlocked
   if(idx>9){ idx=9; _cubeSwatchIdx=9; }
   const sw=SWATCHES[idx];
   _CUBE_COLOR=sw.hex; _cubeLight=sw.light; _cubeDark=sw.dark; _cubeStroke=sw.stroke;
@@ -1177,7 +1432,6 @@ function _applyColor(idx){
   _renderWardrobePreview();
 }
 
-// Wardrobe preview canvas
 const _wdPrev = document.getElementById('wdPreviewCanvas');
 const _wdCtx  = _wdPrev.getContext('2d');
 let _wdAnim   = 0;
@@ -1234,7 +1488,6 @@ function _renderGoldPreview(){
   _wdCtx.globalAlpha=1;_wdCtx.fillStyle='#3a2000';_wdCtx.fillRect(17,24,5,5);_wdCtx.fillRect(28,24,5,5);
 }
 
-// Build wardrobe grid (10 normal swatches only)
 (function _buildWardrobe(){
   const grid=document.getElementById('wdGrid');
   grid.innerHTML='';
@@ -1257,7 +1510,6 @@ function _renderGoldPreview(){
   });
 })();
 
-// Wardrobe loop
 function _wardrobeLoop(){
   if(!document.getElementById('wardrobeMenu').classList.contains('hidden')){
     _renderWardrobePreview();
@@ -1277,7 +1529,6 @@ function _closeWardrobe(){
 document.getElementById('bWardrobe').addEventListener('click',_openWardrobe);
 document.getElementById('bWdBack').addEventListener('click',_closeWardrobe);
 
-// Silver/Gold premium wardrobe slots
 function _rebuildPremiumSlots(){
   const old=document.getElementById('_premiumRow');
   if(old)old.remove();
@@ -1285,7 +1536,6 @@ function _rebuildPremiumSlots(){
   row.className='wd-premium-row';row.id='_premiumRow';
   document.getElementById('bWdBack').parentNode.insertBefore(row,document.getElementById('bWdBack'));
 
-  // Silver
   const sSlot=document.createElement('div');sSlot.className='wd-premium-slot';
   const sSwatch=document.createElement('div');
   sSwatch.className='wd-premium-swatch wd-silver-bg'+(_usingSilver?' active':'')+(_isSilverUnlocked()?'':' locked');
@@ -1304,7 +1554,6 @@ function _rebuildPremiumSlots(){
   sLbl.textContent=_isSilverUnlocked()?'SILVER':'Complete Lvl 7';
   sSlot.appendChild(sSwatch);sSlot.appendChild(sLbl);
 
-  // Gold
   const gSlot=document.createElement('div');gSlot.className='wd-premium-slot';gSlot.style.position='relative';
   const crown=document.createElement('div');crown.className='wd-gold-crown';crown.textContent='👑';gSlot.appendChild(crown);
   const gSwatch=document.createElement('div');
@@ -1398,7 +1647,6 @@ function _drwCheckpoints(){
 
 // ══════════════════════════════
 //  3. SILVER / GOLD CUBE DRAW
-//  (drawn via setInterval overlay)
 // ══════════════════════════════
 
 function _drwSilverCube(){
@@ -1534,7 +1782,7 @@ function _unlockGold(){
 }
 
 // ══════════════════════════════
-//  6. EASY MODE (5 lives, floatier)
+//  6. EASY MODE (5 lives)
 // ══════════════════════════════
 
 const _origStartGame=startGame;
@@ -1544,47 +1792,51 @@ document.getElementById('bRe').addEventListener('click',()=>setTimeout(()=>{live
 
 // ══════════════════════════════
 //  7. ADMIN / OWNER SYSTEM
-//  Privilege NEVER persists — always starts as normal
-//  Keybinds (only when admin/owner active in session):
-//    SHIFT+L  = level select prompt
-//    SHIFT+F  = toggle fly (owner only)
-//    SHIFT+I  = toggle immortal (owner only)
+//  SHIFT+L = level select (admin+)
+//  SHIFT+F = fly toggle (owner only)
+//  SHIFT+I = immortal toggle (owner only)
 // ══════════════════════════════
 
 let _priv='none', _immortal=false, _flying=false;
 function _isAdmin(){ return _priv==='admin'||_priv==='owner'; }
 function _isOwner(){ return _priv==='owner'; }
 
-// Redeem button
+// Redeem UI — positioned top-right via CSS override
 (function _buildRedeemUI(){
   const style=document.createElement('style');
   style.textContent=`
-#_redeemBtn{position:absolute;bottom:8px;right:8px;z-index:50;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;color:#2a2a2a;background:rgba(0,0,0,0.6);border:1px solid #1a1a1a;padding:4px 8px;cursor:pointer;}
-#_redeemBtn:hover{color:#444;}
-#_redeemModal{position:absolute;inset:0;z-index:60;background:rgba(0,0,0,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+#_redeemModal{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
 #_redeemModal.hidden{display:none;}
-#_redeemTitle{font-family:'Orbitron',monospace;font-size:18px;letter-spacing:4px;color:#333;font-weight:700;}
-#_redeemInput{font-family:'Share Tech Mono',monospace;font-size:14px;background:#0a0a0a;border:1px solid #222;color:#666;padding:8px 16px;width:260px;letter-spacing:2px;text-align:center;outline:none;}
-#_redeemInput:focus{border-color:#444;color:#888;}
-#_redeemMsg{font-family:'Share Tech Mono',monospace;font-size:11px;color:#444;letter-spacing:2px;min-height:16px;}
-#_redeemClose{font-family:'Share Tech Mono',monospace;font-size:10px;color:#222;background:none;border:1px solid #1a1a1a;padding:4px 14px;cursor:pointer;letter-spacing:2px;}
-#_redeemClose:hover{color:#444;}
-#_privBadge{position:absolute;top:8px;right:8px;z-index:50;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 8px;pointer-events:none;opacity:0;transition:opacity 0.3s;}
-#_privBadge.show{opacity:1;}
-#_privFlash{position:absolute;bottom:55px;right:8px;z-index:52;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;pointer-events:none;opacity:0;transition:opacity 0.3s;padding:3px 8px;background:rgba(0,0,0,0.8);border:1px solid #222;}
+#_redeemTitle{font-family:'Orbitron',monospace;font-size:16px;letter-spacing:5px;color:rgba(0,255,255,0.4);font-weight:700;}
+#_redeemInput{font-family:'Share Tech Mono',monospace;font-size:14px;background:#050505;border:1px solid rgba(0,255,255,0.15);color:rgba(0,255,255,0.7);padding:9px 18px;width:270px;letter-spacing:3px;text-align:center;outline:none;transition:border-color 0.2s;}
+#_redeemInput:focus{border-color:rgba(0,255,255,0.5);color:#0ff;box-shadow:0 0 10px rgba(0,255,255,0.1);}
+#_redeemMsg{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(0,255,255,0.3);letter-spacing:2px;min-height:16px;}
+#_redeemClose{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,255,255,0.25);background:none;border:1px solid rgba(0,255,255,0.1);padding:5px 16px;cursor:pointer;letter-spacing:2px;transition:all 0.2s;}
+#_redeemClose:hover{color:rgba(0,255,255,0.6);border-color:rgba(0,255,255,0.35);}
   `;
   document.head.appendChild(style);
 
-  const gc=document.getElementById('gameContainer');
+  const btn=document.createElement('button');
+  btn.id='_redeemBtn';
+  btn.textContent='redeem code';
+  document.body.appendChild(btn);
 
-  const btn=document.createElement('button');btn.id='_redeemBtn';btn.textContent='redeem code';gc.appendChild(btn);
+  const badge=document.createElement('div');badge.id='_privBadge';
+  badge.style.cssText='position:fixed;top:36px;right:10px;z-index:200;font-family:"Share Tech Mono",monospace;font-size:9px;letter-spacing:2px;padding:3px 8px;pointer-events:none;opacity:0;transition:opacity 0.3s;';
+  document.body.appendChild(badge);
 
-  const badge=document.createElement('div');badge.id='_privBadge';gc.appendChild(badge);
-  const flash=document.createElement('div');flash.id='_privFlash';gc.appendChild(flash);
+  const flash=document.createElement('div');flash.id='_privFlash';
+  flash.style.cssText='position:fixed;top:62px;right:10px;z-index:200;font-family:"Share Tech Mono",monospace;font-size:10px;letter-spacing:2px;pointer-events:none;opacity:0;transition:opacity 0.3s;padding:3px 8px;background:rgba(0,0,0,0.8);border:1px solid rgba(0,255,255,0.1);';
+  document.body.appendChild(flash);
 
   const modal=document.createElement('div');modal.id='_redeemModal';modal.className='hidden';
-  modal.innerHTML=`<div id="_redeemTitle">REDEEM CODE</div><input id="_redeemInput" type="text" placeholder="ENTER CODE" autocomplete="off" spellcheck="false"><div id="_redeemMsg"></div><button id="_redeemClose">CLOSE</button>`;
-  gc.appendChild(modal);
+  modal.innerHTML=`
+    <div id="_redeemTitle">◈ REDEEM CODE ◈</div>
+    <input id="_redeemInput" type="text" placeholder="ENTER ACCESS CODE" autocomplete="off" spellcheck="false">
+    <div id="_redeemMsg"></div>
+    <button id="_redeemClose">✕ &nbsp;CLOSE</button>
+  `;
+  document.body.appendChild(modal);
 
   btn.addEventListener('click',()=>{ modal.classList.remove('hidden'); document.getElementById('_redeemInput').value=''; document.getElementById('_redeemMsg').textContent=''; document.getElementById('_redeemInput').focus(); });
   document.getElementById('_redeemClose').addEventListener('click',()=>modal.classList.add('hidden'));
@@ -1593,18 +1845,18 @@ function _isOwner(){ return _priv==='owner'; }
     if(e.key!=='Enter')return;
     const code=e.target.value.trim().toUpperCase();
     const msg=document.getElementById('_redeemMsg');
-    if(code==='TDVADMIN'){ _priv='admin'; _applyPriv(); msg.style.color='#446644'; msg.textContent='✓ ADMIN GRANTED'; setTimeout(()=>modal.classList.add('hidden'),1000); }
-    else if(code==='TDVOWNER_2014'){ _priv='owner'; _applyPriv(); msg.style.color='#554422'; msg.textContent='✓ OWNER GRANTED'; setTimeout(()=>modal.classList.add('hidden'),1000); }
-    else if(code==='TDVNORMAL'){ _priv='none'; _immortal=false; _flying=false; _applyPriv(); msg.style.color='#333'; msg.textContent='✓ REMOVED'; setTimeout(()=>modal.classList.add('hidden'),1000); }
-    else { msg.style.color='#442222'; msg.textContent='✗ INVALID CODE'; }
+    if(code==='TDVADMIN'){ _priv='admin'; _applyPriv(); msg.style.color='rgba(0,255,100,0.7)'; msg.textContent='✓ ADMIN ACCESS GRANTED'; setTimeout(()=>modal.classList.add('hidden'),1200); }
+    else if(code==='TDVOWNER_2014'){ _priv='owner'; _applyPriv(); msg.style.color='rgba(255,200,0,0.7)'; msg.textContent='✓ OWNER ACCESS GRANTED'; setTimeout(()=>modal.classList.add('hidden'),1200); }
+    else if(code==='TDVNORMAL'){ _priv='none'; _immortal=false; _flying=false; _applyPriv(); msg.style.color='rgba(180,180,180,0.5)'; msg.textContent='✓ PRIVILEGES REMOVED'; setTimeout(()=>modal.classList.add('hidden'),1000); }
+    else { msg.style.color='rgba(255,50,50,0.7)'; msg.textContent='✗ INVALID CODE'; }
   });
 })();
 
 function _applyPriv(){
   const badge=document.getElementById('_privBadge');
-  if(_priv==='owner'){ badge.textContent='[ OWNER ]';badge.style.color='#665533';badge.style.border='1px solid #332211';badge.classList.add('show'); }
-  else if(_priv==='admin'){ badge.textContent='[ ADMIN ]';badge.style.color='#446633';badge.style.border='1px solid #223311';badge.classList.add('show'); }
-  else { badge.classList.remove('show'); _flying=false; _immortal=false; }
+  if(_priv==='owner'){ badge.textContent='[ OWNER ]';badge.style.color='rgba(255,200,0,0.5)';badge.style.border='1px solid rgba(255,200,0,0.15)';badge.style.opacity='1'; }
+  else if(_priv==='admin'){ badge.textContent='[ ADMIN ]';badge.style.color='rgba(0,255,100,0.45)';badge.style.border='1px solid rgba(0,255,100,0.12)';badge.style.opacity='1'; }
+  else { badge.style.opacity='0'; _flying=false; _immortal=false; }
 }
 
 function _flashPriv(txt,col){
@@ -1613,10 +1865,10 @@ function _flashPriv(txt,col){
   clearTimeout(el._t); el._t=setTimeout(()=>{el.style.opacity='0';},1800);
 }
 
-// KEYBINDS — only fire when admin/owner
-// SHIFT+L = level warp prompt  |  SHIFT+F = fly (owner)  |  SHIFT+I = immortal (owner)
+// Keybinds — SHIFT+L admin+ | SHIFT+F, SHIFT+I owner only
 window.addEventListener('keydown',e=>{
   if(!_isAdmin())return;
+  // SHIFT+L = level warp (archived — functional but no UI prompt to keep it clean)
   if(e.shiftKey && e.code==='KeyL'){
     const n=parseInt(prompt('Warp to level (1-10):'));
     if(!isNaN(n)&&n>=1&&n<=10){
@@ -1625,36 +1877,32 @@ window.addEventListener('keydown',e=>{
       initLvl(lvlIdx);_initCheckpoints();STATE='playing';
       ['mainMenu','pauseMenu','lcMenu','goMenu','winMenu','wardrobeMenu'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('hidden');});
       try{startAmbient();}catch(e){}
-      _flashPriv('→ LEVEL '+n,'#446644');
+      _flashPriv('→ LEVEL '+n,'rgba(0,255,100,0.7)');
     }
   }
   if(!_isOwner())return;
   if(e.shiftKey && e.code==='KeyI'){
     _immortal=!_immortal;
-    _flashPriv(_immortal?'★ IMMORTAL ON':'★ IMMORTAL OFF','#665533');
+    _flashPriv(_immortal?'★ IMMORTAL ON':'★ IMMORTAL OFF','rgba(255,200,0,0.7)');
   }
   if(e.shiftKey && e.code==='KeyF'){
     _flying=!_flying;
-    _flashPriv(_flying?'✦ FLY ON':'✦ FLY OFF','#334455');
+    _flashPriv(_flying?'✦ FLY ON':'✦ FLY OFF','rgba(100,180,255,0.7)');
   }
 });
 
 // ══════════════════════════════
 //  8. SETINTERVAL — per-frame extras
-//  (fly, immortal, easy gravity, premium skin overlay, checkpoints)
 // ══════════════════════════════
 
 setInterval(()=>{
   if(typeof STATE==='undefined'||STATE!=='playing')return;
   if(typeof P==='undefined'||!P)return;
 
-  // Checkpoint detection
   if(!P.dead) _checkCheckpoints();
 
-  // Immortal guard
   if(_immortal&&dying){ dying=false; P.dead=false; lives=Math.max(lives,1); }
 
-  // Fly
   if(_flying&&!P.dead){
     const up=K['ArrowUp']||K['Space']||K['KeyW'];
     const dn=K['ArrowDown']||K['KeyS'];
@@ -1663,15 +1911,12 @@ setInterval(()=>{
     P.onGnd=false;
   }
 
-  // Easy gravity drag
   if(!P.dead&&P.vy>0) P.vy*=0.96;
 
-  // Premium skin overlay
   if(_usingSilver&&!P.dead) _drwSilverCube();
   if(_usingGold&&!P.dead)   _drwGoldCube();
 },16);
 
-// Jump boost
 window.addEventListener('keydown',e=>{
   if(typeof STATE==='undefined'||STATE!=='playing'||!P||P.dead)return;
   if(e.code==='Space'||e.code==='ArrowUp'||e.code==='KeyW'){
@@ -1680,36 +1925,16 @@ window.addEventListener('keydown',e=>{
 });
 
 // ══════════════════════════════
-//  9. PATCH GAME LOOP (checkpoints + premium skin in world space)
-// ══════════════════════════════
-
-// We hook into drwHUD which is a function declaration (hoisted) in block 0.
-// We can't override it directly, but we CAN override it by redefining since
-// block 1 runs after block 0 — function declarations in same scope can be overridden.
-// Actually safest: just draw checkpoints in the setInterval above... but they need
-// camera offset. Better: override drwHUD to also call _drwCheckpoints after.
-// drwHUD is called outside CX.save/restore so we need to use world coords manually.
-// The loop does: CX.save → translate(shake) → draw world → CX.restore → drwHUD
-// _drwCheckpoints already handles camX subtraction internally.
-// We add a post-HUD hook by patching the canvas context's restore — too fragile.
-// Simplest: just draw checkpoints in the setInterval BUT draw them in screen coords
-// using the world coords approach already in _drwCheckpoints (subtracts camX). ✓
-// The setInterval fires at ~60fps so it's smooth enough.
-
-// ══════════════════════════════
-//  10. BOOT
+//  9. BOOT
 // ══════════════════════════════
 
 (function _boot(){
-  // Clear any stale force-granted silver/gold from previous buggy sessions
-  // A version flag ensures we only wipe once
   if(localStorage.getItem('cubix_v2')!=='1'){
     localStorage.removeItem('cubix_silver_unlocked');
     localStorage.removeItem('cubix_gold_unlocked');
     localStorage.removeItem('cubix_priv');
     localStorage.setItem('cubix_v2','1');
   }
-  // Restore saved normal swatch (never auto-apply locked premium skins)
   const saved=parseInt(localStorage.getItem('cubix_swatch')||'9');
   if(saved===10&&_isSilverUnlocked()) _applyColor(10);
   else if(saved===11&&_isGoldUnlocked()) _applyColor(11);
@@ -1721,14 +1946,13 @@ window.addEventListener('keydown',e=>{
 })();
 
 // ══════════════════════════════
-//  11. ELITE MENU PARTICLE SYSTEM
+//  10. ELITE MENU PARTICLE SYSTEM
 // ══════════════════════════════
 (function _menuParticles(){
   const c=document.getElementById('menuBG');
   const ctx=c.getContext('2d');
   const W=900,H=540;
   const pts=[];
-  // Generate 80 particles
   for(let i=0;i<80;i++) pts.push({
     x:Math.random()*W, y:Math.random()*H,
     vx:(Math.random()-0.5)*0.4, vy:-0.3-Math.random()*0.5,
@@ -1738,11 +1962,9 @@ window.addEventListener('keydown',e=>{
     life:Math.random()
   });
 
-  // Horizontal scan lines that sweep down occasionally
   let scanY=-20, scanActive=false, scanTimer=0;
 
   function _drawMenuBG(ts){
-    // Only draw when a menu is visible
     const anyMenu = !document.getElementById('mainMenu').classList.contains('hidden')||
                     !document.getElementById('pauseMenu').classList.contains('hidden')||
                     !document.getElementById('lcMenu').classList.contains('hidden')||
@@ -1751,10 +1973,8 @@ window.addEventListener('keydown',e=>{
                     !document.getElementById('wardrobeMenu').classList.contains('hidden');
 
     ctx.clearRect(0,0,W,H);
-
     if(!anyMenu){ requestAnimationFrame(_drawMenuBG); return; }
 
-    // Particles
     pts.forEach(p=>{
       p.x+=p.vx; p.y+=p.vy; p.life+=0.003;
       if(p.y<-4){ p.y=H+4; p.x=Math.random()*W; p.life=0; }
@@ -1765,7 +1985,6 @@ window.addEventListener('keydown',e=>{
       ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
       ctx.fillStyle=`rgba(${p.col},${a})`;
       ctx.fill();
-      // Trail
       ctx.beginPath();
       ctx.moveTo(p.x,p.y);
       ctx.lineTo(p.x-p.vx*8,p.y-p.vy*8);
@@ -1774,7 +1993,6 @@ window.addEventListener('keydown',e=>{
       ctx.stroke();
     });
 
-    // Diagonal grid lines (animated)
     const t=ts*0.0003;
     ctx.save();
     ctx.globalAlpha=0.04;
@@ -1785,7 +2003,6 @@ window.addEventListener('keydown',e=>{
     }
     ctx.restore();
 
-    // Horizontal sweep line
     scanTimer++;
     if(scanTimer>180&&!scanActive){ scanActive=true; scanY=0; scanTimer=0; }
     if(scanActive){
@@ -1806,7 +2023,7 @@ window.addEventListener('keydown',e=>{
 })();
 
 // ══════════════════════════════
-//  12. LEVEL BADGE UPDATER
+//  11. LEVEL BADGE UPDATER
 // ══════════════════════════════
 setInterval(()=>{
   const badge=document.getElementById('_lvlBadge');
@@ -1820,8 +2037,174 @@ setInterval(()=>{
   }
 },200);
 
+</script>
 
+<!-- ═══════════════════════════════════════════════
+     MOBILE CONTROLS SCRIPT
+     ═══════════════════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
 
+  // ── Touch/click handlers for move + jump ──
+  const BTN_MAP = {
+    btnLeft:  ['ArrowLeft'],
+    btnRight: ['ArrowRight'],
+    btnJump:  ['Space', 'ArrowUp'],
+  };
+
+  const _activeTouches = {};
+
+  function pressBtn(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('pressed');
+    const codes = BTN_MAP[id];
+    if (!codes) return;
+    codes.forEach(code => {
+      if (!K[code]) JP[code] = true;
+      K[code] = true;
+    });
+  }
+
+  function releaseBtn(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('pressed');
+    const codes = BTN_MAP[id];
+    if (!codes) return;
+    codes.forEach(code => { K[code] = false; });
+  }
+
+  ['btnLeft', 'btnRight', 'btnJump'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.addEventListener('touchstart', e => {
+      e.preventDefault();
+      Array.from(e.changedTouches).forEach(t => {
+        if (!_activeTouches[id]) _activeTouches[id] = new Set();
+        _activeTouches[id].add(t.identifier);
+      });
+      pressBtn(id);
+    }, { passive: false });
+
+    el.addEventListener('touchend', e => {
+      e.preventDefault();
+      Array.from(e.changedTouches).forEach(t => {
+        if (_activeTouches[id]) _activeTouches[id].delete(t.identifier);
+      });
+      if (!_activeTouches[id] || _activeTouches[id].size === 0) releaseBtn(id);
+    }, { passive: false });
+
+    el.addEventListener('touchcancel', e => {
+      e.preventDefault();
+      if (_activeTouches[id]) _activeTouches[id].clear();
+      releaseBtn(id);
+    }, { passive: false });
+
+    // Mouse fallback for desktop testing
+    el.addEventListener('mousedown', e => { e.preventDefault(); pressBtn(id); });
+    window.addEventListener('mouseup', () => releaseBtn(id));
+  });
+
+  // ── FLY BUTTON — hold to fly up, tap to toggle fly mode ──
+  const flyBtn = document.getElementById('btnFly');
+  if (flyBtn) {
+    let _flyHeld = false;
+
+    const _flyStart = e => {
+      e.preventDefault();
+      _flyHeld = true;
+      flyBtn.classList.add('pressed');
+      // If fly mode active → push up
+      if (typeof _flying !== 'undefined' && _flying) {
+        K['ArrowUp'] = true; JP['ArrowUp'] = true;
+      } else {
+        // Toggle fly mode on tap
+        window.dispatchEvent(new KeyboardEvent('keydown', { code:'KeyF', shiftKey:true, bubbles:true }));
+        setTimeout(() => {
+          if (typeof _flying !== 'undefined' && _flying) {
+            K['ArrowUp'] = true; JP['ArrowUp'] = true;
+            flyBtn.classList.add('fly-active');
+          } else {
+            flyBtn.classList.remove('fly-active');
+          }
+        }, 40);
+      }
+    };
+
+    const _flyEnd = e => {
+      if(e) e.preventDefault();
+      _flyHeld = false;
+      flyBtn.classList.remove('pressed');
+      K['ArrowUp'] = false;
+    };
+
+    flyBtn.addEventListener('touchstart', _flyStart, { passive: false });
+    flyBtn.addEventListener('touchend',   _flyEnd,   { passive: false });
+    flyBtn.addEventListener('touchcancel',_flyEnd,   { passive: false });
+    flyBtn.addEventListener('mousedown',  _flyStart);
+    window.addEventListener('mouseup',    _flyEnd);
+  }
+
+  // ── IMMORTAL BUTTON — tap to toggle ──
+  const immBtn = document.getElementById('btnImmort');
+  if (immBtn) {
+    const _immToggle = e => {
+      e.preventDefault();
+      if (typeof _priv === 'undefined' || _priv !== 'owner') return;
+      immBtn.classList.add('pressed');
+      setTimeout(() => immBtn.classList.remove('pressed'), 160);
+      window.dispatchEvent(new KeyboardEvent('keydown', { code:'KeyI', shiftKey:true, bubbles:true }));
+      setTimeout(() => {
+        if (typeof _immortal !== 'undefined' && _immortal) {
+          immBtn.classList.add('immort-active');
+        } else {
+          immBtn.classList.remove('immort-active');
+        }
+      }, 50);
+    };
+    immBtn.addEventListener('touchstart', _immToggle, { passive: false });
+    immBtn.addEventListener('mousedown',  _immToggle);
+  }
+
+  // ── Sync owner-only button visibility & states ──
+  setInterval(() => {
+    const isOwner = (typeof _priv !== 'undefined' && _priv === 'owner');
+    const flyEl  = document.getElementById('btnFly');
+    const immEl  = document.getElementById('btnImmort');
+
+    if (flyEl) {
+      flyEl.classList.toggle('owner-visible', isOwner);
+      flyEl.classList.toggle('fly-active', isOwner && typeof _flying !== 'undefined' && _flying);
+    }
+    if (immEl) {
+      immEl.classList.toggle('owner-visible', isOwner);
+      immEl.classList.toggle('immort-active', isOwner && typeof _immortal !== 'undefined' && _immortal);
+    }
+  }, 350);
+
+  // ── Dim controls when not playing ──
+  setInterval(() => {
+    const ctrl = document.getElementById('mobileControls');
+    if (!ctrl) return;
+    const inPlay = (typeof STATE !== 'undefined' && STATE === 'playing');
+    ctrl.style.opacity     = inPlay ? '1' : '0.1';
+    ctrl.style.pointerEvents = inPlay ? '' : 'none';
+  }, 200);
+
+  // ── Unlock audio on first touch ──
+  document.addEventListener('touchstart', () => {
+    try { AC(); } catch(e) {}
+  }, { once: true });
+
+  // ── Prevent scroll/zoom during play ──
+  document.addEventListener('touchmove', e => {
+    if (typeof STATE !== 'undefined' && STATE === 'playing') e.preventDefault();
+  }, { passive: false });
+
+})();
 </script>
 </body>
 </html>
