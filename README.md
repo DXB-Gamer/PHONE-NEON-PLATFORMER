@@ -389,7 +389,7 @@ canvas { display: block; }
    MOBILE CONTROLS
    ══════════════════════════════════════════════════ */
 
-/* Portrait: ask user to rotate */
+/* Portrait block — shown via JS only after user picks PHONE */
 #portraitBlock {
   display: none;
   position: fixed; inset: 0; z-index: 9999;
@@ -398,21 +398,28 @@ canvas { display: block; }
   align-items: center; justify-content: center;
   gap: 20px;
 }
-#portraitBlock .rot-icon { font-size: 60px; animation: rotHint 1.6s ease-in-out infinite; }
+#portraitBlock .rot-icon {
+  font-size: 72px;
+  animation: rotHint 1.4s ease-in-out infinite;
+  display: block;
+}
 @keyframes rotHint {
   0%,100% { transform: rotate(0deg); }
   50%      { transform: rotate(-90deg); }
 }
+#portraitBlock .rot-arrow {
+  font-size: 48px;
+  animation: rotHint 1.4s ease-in-out infinite;
+  opacity: 0.6;
+}
 #portraitBlock p {
   font-family: 'Orbitron', monospace;
-  color: rgba(0,255,255,0.65);
+  color: rgba(0,255,255,0.75);
   font-size: 11px;
-  letter-spacing: 4px;
+  letter-spacing: 5px;
   text-align: center;
-  line-height: 2.2;
-}
-@media (orientation: portrait) and ((hover: none) or (pointer: coarse)) {
-  #portraitBlock { display: flex !important; }
+  line-height: 2.4;
+  text-shadow: 0 0 12px rgba(0,255,255,0.4);
 }
 
 /* ── Control bar: fixed to bottom, iPhone + iPad + Android ── */
@@ -420,8 +427,7 @@ canvas { display: block; }
   display: none;
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: 130px;
-  /* iOS home bar / notch safe area */
+  height: var(--ctrl-bar-h, 115px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   z-index: 200;
   pointer-events: none;
@@ -491,9 +497,17 @@ canvas { display: block; }
   background: radial-gradient(circle, rgba(0,255,255,0.14) 0%, transparent 70%);
 }
 
+:root {
+  --btn-lr:   64px;
+  --btn-jump: 72px;
+  --btn-fly:  50px;
+  --btn-imm:  58px;
+  --ctrl-bar-h: 115px;
+}
+
 /* ── Move buttons — neon cyan ── */
 #btnLeft, #btnRight {
-  width: 94px; height: 94px;
+  width: var(--btn-lr); height: var(--btn-lr);
   box-shadow: 0 0 8px rgba(0,255,255,0.12), inset 0 0 10px rgba(0,0,0,0.6);
 }
 #btnLeft.pressed, #btnRight.pressed {
@@ -505,7 +519,7 @@ canvas { display: block; }
 
 /* ── Jump button — magenta, biggest ── */
 #btnJump {
-  width: 102px; height: 102px;
+  width: var(--btn-jump); height: var(--btn-jump);
   border-color: rgba(255,0,200,0.45);
   background: rgba(8,0,10,0.6);
   box-shadow: 0 0 12px rgba(255,0,200,0.18), inset 0 0 12px rgba(0,0,0,0.6);
@@ -522,7 +536,7 @@ canvas { display: block; }
 
 /* ── Fly button — electric blue, owner only ── */
 #btnFly {
-  width: 76px; height: 76px;
+  width: var(--btn-fly); height: var(--btn-fly);
   border-color: rgba(60,140,255,0.45);
   background: rgba(0,4,18,0.6);
   box-shadow: 0 0 10px rgba(60,140,255,0.15), inset 0 0 10px rgba(0,0,0,0.6);
@@ -547,7 +561,7 @@ canvas { display: block; }
 
 /* ── Immortal / Shield button — gold, owner only ── */
 #btnImmort {
-  width: 84px; height: 84px;
+  width: var(--btn-imm); height: var(--btn-imm);
   border-color: rgba(220,170,0,0.4);
   background: rgba(10,7,0,0.62);
   box-shadow: 0 0 10px rgba(220,170,0,0.12), inset 0 0 10px rgba(0,0,0,0.6);
@@ -702,7 +716,8 @@ canvas { display: block; }
 <!-- Portrait rotation prompt -->
 <div id="portraitBlock">
   <div class="rot-icon">📱</div>
-  <p>ROTATE YOUR DEVICE<br>TO LANDSCAPE MODE<br>TO PLAY CUBIX</p>
+  <div class="rot-arrow">↻</div>
+  <p>ROTATE TO<br>LANDSCAPE<br>TO PLAY CUBIX</p>
 </div>
 
 <!-- DEVICE PICKER -->
@@ -2507,128 +2522,152 @@ document.getElementById('bSwitchDevice').addEventListener('click', () => {
   // DEVICE PICKER — phone vs tablet
   // ══════════════════════════════════════════
   let _deviceType = localStorage.getItem('cubix_device') || null;
+  window._deviceType  = _deviceType;
+  window._deviceCtrlH = (_deviceType === 'tablet') ? 150 : 95;
 
+  // Genuinely different sizes — phone is compact, tablet is large
   const DEVICE_SIZES = {
-    phone:  { left: 78, jump: 86, fly: 64, immort: 72, ctrlH: 115 },
-    tablet: { left: 94, jump: 102, fly: 76, immort: 84, ctrlH: 130 },
+    phone: {
+      left:68, jump:76, fly:54, immort:62,
+      ctrlH:110, ctrlBottom:14, gap:10,
+    },
+    tablet: {
+      left:100, jump:116, fly:82, immort:94,
+      ctrlH:150, ctrlBottom:28, gap:18,
+    },
   };
 
+  // scaleGame defined FIRST so applyDeviceLayout can call it
+  function scaleGame() {
+    const gc = document.getElementById('gameContainer');
+    const gw = document.getElementById('gameWrapper');
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+    // DESKTOP — clear inline styles
+    if (!isTouch) { gc.style.cssText = ''; gw.style.cssText = ''; return; }
+
+    const GW = 900, GH = 540;
+    const vp   = window.visualViewport;
+    const vw   = vp ? vp.width  : window.innerWidth;
+    const vh   = vp ? vp.height : window.innerHeight;
+
+    // Read ACTUAL rendered bar height (after CSS paint)
+    const bar  = document.getElementById('mobileControls');
+    const barH = (bar && bar.offsetHeight > 10) ? bar.offsetHeight : (window._deviceCtrlH || 95);
+    const availH = Math.max(80, vh - barH);
+
+    const dtype = window._deviceType;
+    let scale;
+
+    if (dtype === 'phone') {
+      // PHONE: fill full width — game as big as possible on narrow screen
+      const sw = vw / GW;
+      const sh = availH / GH;
+      scale = (sw <= sh) ? sw : Math.min(sw, sh);
+    } else {
+      // TABLET: fit with padding — centered, breathable layout
+      const PAD = 20;
+      scale = Math.min((vw - PAD*2) / GW, (availH - PAD) / GH);
+    }
+
+    const scaledW = GW * scale;
+    const scaledH = GH * scale;
+    const left    = Math.max(0, (vw - scaledW) / 2);
+    const top     = Math.max(0, (availH - scaledH) / 2);
+
+    gw.style.cssText = `position:fixed;top:0;left:0;width:${vw}px;height:${availH}px;overflow:hidden;display:block;background:#000;`;
+    gc.style.cssText = `position:absolute;width:900px;height:540px;top:0;left:0;transform-origin:0 0;transform:translate(${left}px,${top}px) scale(${scale});overflow:hidden;box-shadow:0 0 0 1px rgba(0,255,255,0.18),0 0 40px rgba(0,255,255,0.12),0 0 100px rgba(0,255,255,0.06),inset 0 0 80px rgba(0,0,0,0.6);`;
+  }
+  window.scaleGame = scaleGame;
+
+  // applyDeviceLayout: set CSS vars directly on :root — no specificity fights
   function applyDeviceLayout(type) {
     _deviceType = type;
-    window._deviceType = type; // expose for scaleGame
+    window._deviceType  = type;
+    window._deviceCtrlH = DEVICE_SIZES[type].ctrlH;
     localStorage.setItem('cubix_device', type);
     const s = DEVICE_SIZES[type];
-    const old = document.getElementById('device-overrides');
-    if (old) old.remove();
-    const style = document.createElement('style');
-    style.id = 'device-overrides';
-    style.textContent = `
-      #btnLeft, #btnRight { width: ${s.left}px !important; height: ${s.left}px !important; }
-      #btnJump            { width: ${s.jump}px !important; height: ${s.jump}px !important; }
-      #btnFly             { width: ${s.fly}px !important;  height: ${s.fly}px !important; }
-      #btnImmort          { width: ${s.immort}px !important; height: ${s.immort}px !important; }
-      #mobileControls     { height: ${s.ctrlH}px !important; }
-      .ctrl-zone          { bottom: ${type === 'phone' ? 18 : 22}px !important; }
-    `;
-    document.head.appendChild(style);
-    window._deviceCtrlH = s.ctrlH;
-    scaleGame();
+
+    // Set CSS variables directly on documentElement — always takes effect immediately
+    const root = document.documentElement;
+    root.style.setProperty('--btn-lr',     s.left   + 'px');
+    root.style.setProperty('--btn-jump',   s.jump   + 'px');
+    root.style.setProperty('--btn-fly',    s.fly    + 'px');
+    root.style.setProperty('--btn-imm',    s.immort + 'px');
+    root.style.setProperty('--ctrl-bar-h', s.ctrlH  + 'px');
+
+    // Set ctrl-zone bottom + gaps directly on elements
+    document.querySelectorAll('.ctrl-zone').forEach(z => z.style.bottom = s.ctrlBottom + 'px');
+    const cl = document.getElementById('ctrlLeft');
+    const cr = document.getElementById('ctrlRight');
+    if (cl) cl.style.gap = s.gap + 'px';
+    if (cr) cr.style.gap = Math.round(s.gap * 0.55) + 'px';
+
+    // Double rAF ensures layout is painted before we measure/scale
+    requestAnimationFrame(() => requestAnimationFrame(scaleGame));
   }
-  window.applyDeviceLayout = applyDeviceLayout; // expose globally
+  window.applyDeviceLayout = applyDeviceLayout;
 
   function showDevicePicker() {
     const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-    if (!isTouch) return; // desktop — skip picker
+    if (!isTouch) return;
     const saved = localStorage.getItem('cubix_device');
-    if (saved) { applyDeviceLayout(saved); return; } // remembered choice
+    if (saved) { applyDeviceLayout(saved); return; }
     const picker = document.getElementById('devicePicker');
     if (picker) picker.style.display = 'flex';
+  }
+
+  // Try to lock orientation to landscape — must be called inside a user gesture
+  function tryLockLandscape() {
+    try {
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
+      } else if (screen.lockOrientation) {
+        screen.lockOrientation('landscape');
+      } else if (screen.mozLockOrientation) {
+        screen.mozLockOrientation('landscape');
+      } else if (screen.msLockOrientation) {
+        screen.msLockOrientation('landscape');
+      }
+    } catch(e) {}
   }
 
   const bPhone = document.getElementById('bDevPhone');
   const bIpad  = document.getElementById('bDevIpad');
   if (bPhone) bPhone.addEventListener('click', () => {
     document.getElementById('devicePicker').style.display = 'none';
-    (window.applyDeviceLayout || applyDeviceLayout)('phone');
+    tryLockLandscape();
+    applyDeviceLayout('phone');
+    setTimeout(checkPortrait, 200); // show rotate screen if still portrait after lock attempt
   });
   if (bIpad) bIpad.addEventListener('click', () => {
     document.getElementById('devicePicker').style.display = 'none';
-    (window.applyDeviceLayout || applyDeviceLayout)('tablet');
+    // iPad already in landscape — no lock needed
+    applyDeviceLayout('tablet');
   });
+
+  // If returning user already chose phone, try lock on first touch
+  if (localStorage.getItem('cubix_device') === 'phone') {
+    document.addEventListener('touchstart', function _firstTouch() {
+      tryLockLandscape();
+      document.removeEventListener('touchstart', _firstTouch);
+    }, { once: true });
+  }
+
+  // Portrait blocker — only for phone users, only in portrait
+  function checkPortrait() {
+    const isPhone = localStorage.getItem('cubix_device') === 'phone';
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const pb = document.getElementById('portraitBlock');
+    if (pb) pb.style.display = (isPhone && isPortrait) ? 'flex' : 'none';
+  }
+  window.addEventListener('resize', checkPortrait);
+  window.addEventListener('orientationchange', () => setTimeout(checkPortrait, 150));
+  checkPortrait();
 
   showDevicePicker();
 
-  // ══════════════════════════════════════════
-  // SCALE GAME — works on iPhone, iPad, Android
-  // Game canvas stays 900×540 internally.
-  // CSS transform scales it to fill the screen.
-  // Controls stay fixed at bottom with safe-area.
-  // ══════════════════════════════════════════
-  function scaleGame() {
-    const gc = document.getElementById('gameContainer');
-    const gw = document.getElementById('gameWrapper');
 
-    // Detect touch device — covers iPhone, iPad (even in desktop mode), Android
-    const isTouch = ('ontouchstart' in window)
-      || (navigator.maxTouchPoints > 0)
-      || window.matchMedia('(pointer: coarse)').matches;
-
-    if (!isTouch) {
-      gc.style.cssText = '';
-      gw.style.cssText = '';
-      return;
-    }
-
-    const GW = 900, GH = 540;
-    const CTRL_H = window._deviceCtrlH || 130;
-    const isPhone = (window._deviceType === 'phone');
-
-    // Use visualViewport on iOS Safari for accurate dimensions (avoids browser chrome issues)
-    const vp = window.visualViewport;
-    const vw = vp ? vp.width  : window.innerWidth;
-    const vh = vp ? vp.height : window.innerHeight;
-
-    // Safe area insets for iPhone notch / home bar
-    const safeBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sab') || '0') || 0;
-    const totalCtrl  = CTRL_H + safeBottom;
-    const availH     = vh - totalCtrl;
-
-    // Phone: stretch wider to fill screen edge-to-edge (slight crop is fine)
-    // Tablet: fit perfectly within bounds
-    const fitScale = Math.min(vw / GW, availH / GH);
-    const scale    = isPhone ? Math.min(vw / GW * 1.08, availH / GH) : fitScale;
-    const scaledW  = GW * scale;
-    const scaledH  = GH * scale;
-    const left     = (vw - scaledW) / 2;
-    const top      = (availH - scaledH) / 2;
-
-    // Wrapper fills above the control bar
-    gw.style.cssText = `
-      position: fixed;
-      top: 0; left: 0;
-      width: ${vw}px;
-      height: ${availH}px;
-      overflow: hidden;
-      display: block;
-      background: #000;
-    `;
-
-    // Game sits centered inside wrapper, scaled
-    gc.style.cssText = `
-      position: absolute;
-      width: 900px;
-      height: 540px;
-      top: 0; left: 0;
-      transform-origin: 0 0;
-      transform: translate(${left}px, ${top}px) scale(${scale});
-      overflow: hidden;
-      box-shadow:
-        0 0 0 1px rgba(0,255,255,0.18),
-        0 0 40px rgba(0,255,255,0.12),
-        0 0 100px rgba(0,255,255,0.06),
-        inset 0 0 80px rgba(0,0,0,0.6);
-    `;
-  }
 
   // Read iOS safe-area-inset-bottom via a probe element
   (function() {
