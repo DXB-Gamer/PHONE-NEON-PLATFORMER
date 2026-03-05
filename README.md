@@ -1,27 +1,53 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
+<meta name="screen-orientation" content="landscape">
+<meta name="x5-orientation" content="landscape">
+<meta name="full-screen" content="yes">
+<meta name="browsermode" content="application">
 <title>CUBIX — Neon Platformer</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{
-  background:#000;overflow:hidden;
-  font-family:'Orbitron',monospace;color:#0ff;
-  display:flex;align-items:center;justify-content:center;
-  width:100vw;height:100vh;
+
+body {
+  background: #000;
+  font-family: 'Orbitron', monospace;
+  color: #0ff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  /* Scrollable — user can drag to reposition */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Wrapper stacks game canvas + control bar */
+#gameWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 /* ── Outer container with premium edge glow ── */
 #gameContainer{
-  position:relative;width:900px;height:540px;overflow:hidden;
+  position:relative;
+  width: 900px;
+  height: 540px;
+  /* Scale down to fit viewport width on smaller screens */
+  max-width: 100vw;
+  overflow:hidden;
   box-shadow:
     0 0 0 1px rgba(0,255,255,0.18),
     0 0 40px rgba(0,255,255,0.12),
     0 0 100px rgba(0,255,255,0.06),
     0 0 0 3px rgba(255,0,255,0.04),
     inset 0 0 80px rgba(0,0,0,0.6);
+  flex-shrink: 0;
 }
 /* Corner accent marks */
 #gameContainer::before,#gameContainer::after{
@@ -339,29 +365,74 @@ canvas{display:block;}
 }
 
 /* ══════════════════════════════════════════════════
-   MOBILE CONTROLS — Elite Redesign
+   MOBILE CONTROLS — Landscape-First Layout
    ══════════════════════════════════════════════════ */
+
+/* ── Portrait blocker: show rotate message ── */
+#portraitBlock {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: #000;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px;
+}
+#portraitBlock .rot-icon { font-size: 60px; animation: rotHint 1.6s ease-in-out infinite; }
+@keyframes rotHint {
+  0%,100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-90deg); }
+}
+#portraitBlock p {
+  font-family: 'Orbitron', monospace;
+  color: rgba(0,255,255,0.65);
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-align: center;
+  line-height: 2.2;
+}
+@media (orientation: portrait) and (hover: none) and (pointer: coarse) {
+  #portraitBlock { display: flex !important; }
+}
+
+/* ── Mobile control bar: hidden by default, shown on touch ── */
 #mobileControls {
   display: none;
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 190px;
-  z-index: 100;
+  width: 100%;
+  height: 150px;
+  position: relative;
   pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
+  flex-shrink: 0;
+  /* Small gap so controls are visually separated & pushed down */
+  margin-top: 8px;
 }
 
-@media (hover: none) and (pointer: coarse) {
-  #mobileControls { display: block; }
+/* ── On touch devices in landscape: fill viewport exactly ── */
+@media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+  html, body {
+    /* No bounce-scrolling during play but allow reposition */
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  #mobileControls { display: flex !important; }
   #gameContainer {
     width: 100vw !important;
-    height: calc(100vh - 190px) !important;
+    max-width: 100vw !important;
+    /* Viewport height minus control bar (150) minus gap (8) minus margin (2) */
+    height: calc(100vh - 164px) !important;
+    min-height: 160px !important;
   }
   #gameContainer canvas {
     width: 100% !important;
     height: 100% !important;
   }
+}
+
+/* ── Also show controls on any touch device (for testing in browsers) ── */
+@media (hover: none) and (pointer: coarse) {
+  #mobileControls { display: flex !important; }
 }
 
 .ctrl-zone {
@@ -372,8 +443,9 @@ canvas{display:block;}
   align-items: flex-end;
 }
 
-#ctrlLeft  { left: 18px; flex-direction: row; align-items: flex-end; gap: 10px; padding-bottom: 18px; }
-#ctrlRight { right: 18px; flex-direction: column; align-items: center; gap: 10px; padding-bottom: 18px; }
+/* padding-bottom pushes buttons down from the top edge of the bar */
+#ctrlLeft  { left: 20px;  flex-direction: row;    align-items: flex-end; gap: 10px; padding-bottom: 12px; }
+#ctrlRight { right: 20px; flex-direction: column; align-items: center;   gap: 8px;  padding-bottom: 12px; }
 
 .ctrl-btn {
   border-radius: 50%;
@@ -419,7 +491,7 @@ canvas{display:block;}
 
 /* ── Move buttons — neon cyan ── */
 #btnLeft, #btnRight {
-  width: 74px; height: 74px;
+  width: 68px; height: 68px;
   box-shadow: 0 0 8px rgba(0,255,255,0.12), inset 0 0 10px rgba(0,0,0,0.6);
 }
 #btnLeft.pressed, #btnRight.pressed {
@@ -431,7 +503,7 @@ canvas{display:block;}
 
 /* ── Jump button — magenta, biggest ── */
 #btnJump {
-  width: 84px; height: 84px;
+  width: 76px; height: 76px;
   border-color: rgba(255,0,200,0.45);
   background: rgba(8,0,10,0.6);
   box-shadow: 0 0 12px rgba(255,0,200,0.18), inset 0 0 12px rgba(0,0,0,0.6);
@@ -448,7 +520,7 @@ canvas{display:block;}
 
 /* ── Fly button — electric blue, owner only ── */
 #btnFly {
-  width: 62px; height: 62px;
+  width: 54px; height: 54px;
   border-color: rgba(60,140,255,0.45);
   background: rgba(0,4,18,0.6);
   box-shadow: 0 0 10px rgba(60,140,255,0.15), inset 0 0 10px rgba(0,0,0,0.6);
@@ -473,7 +545,7 @@ canvas{display:block;}
 
 /* ── Immortal / Shield button — gold, owner only ── */
 #btnImmort {
-  width: 66px; height: 66px;
+  width: 60px; height: 60px;
   border-color: rgba(220,170,0,0.4);
   background: rgba(10,7,0,0.62);
   box-shadow: 0 0 10px rgba(220,170,0,0.12), inset 0 0 10px rgba(0,0,0,0.6);
@@ -548,6 +620,14 @@ canvas{display:block;}
 </style>
 </head>
 <body>
+
+<!-- Portrait rotation prompt -->
+<div id="portraitBlock">
+  <div class="rot-icon">📱</div>
+  <p>ROTATE YOUR DEVICE<br>TO LANDSCAPE MODE<br>TO PLAY CUBIX</p>
+</div>
+
+<div id="gameWrapper">
 <div id="gameContainer">
   <canvas id="gameCanvas" width="900" height="540"></canvas>
   <canvas id="scanlineCanvas" width="900" height="540"></canvas>
@@ -752,6 +832,7 @@ canvas{display:block;}
   </div>
 
 </div><!-- /mobileControls -->
+</div><!-- /gameWrapper -->
 
 <!-- ═══════════════════════════════════════════════
      ORIGINAL GAME SCRIPT — 100% UNTOUCHED
@@ -2199,8 +2280,10 @@ setInterval(()=>{
     try { AC(); } catch(e) {}
   }, { once: true });
 
-  // ── Prevent scroll/zoom during play ──
+  // ── Prevent scroll/zoom during play only ──
   document.addEventListener('touchmove', e => {
+    // Allow scroll on the control bar so user can reposition the page
+    if (e.target.closest('#mobileControls')) return;
     if (typeof STATE !== 'undefined' && STATE === 'playing') e.preventDefault();
   }, { passive: false });
 
