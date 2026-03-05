@@ -2306,13 +2306,12 @@ setInterval(()=>{
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const availH = vh - CTRL_H;
-    // Scale to fill width fully, but never taller than available height
-    const scaleW = vw / GW;
-    const scaleH = availH / GH;
-    const scale  = Math.min(scaleW, scaleH) * 1.05; // 5% wider/bigger nudge
+    // Fill the full width, cap height so it doesn't overflow controls
+    const scaleByWidth  = vw / GW;
+    const scaleByHeight = availH / GH;
+    const scale = Math.min(scaleByWidth, scaleByHeight * 1.1) * 1.1;
     const scaledW = GW * scale;
     const scaledH = GH * scale;
-    // Center horizontally; if it overflows width, clamp left to 0
     const left = Math.max(0, (vw - scaledW) / 2);
     const top  = Math.max(0, (availH - scaledH) / 2);
 
