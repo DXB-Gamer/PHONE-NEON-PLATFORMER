@@ -647,9 +647,57 @@ canvas { display: block; }
 .menu-entering .btn:nth-child(1) { animation-delay: 0.10s; }
 .menu-entering .btn:nth-child(2) { animation-delay: 0.17s; }
 .menu-entering .btn:nth-child(3) { animation-delay: 0.24s; }
+/* ── CONFIRM DIALOG ── */
+#cubixConfirm {
+  display: none;
+  position: fixed; inset: 0; z-index: 20000;
+  background: rgba(0,0,0,0.92);
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 18px;
+  font-family: 'Orbitron', monospace;
+}
+#cubixConfirm.show { display: flex; }
+#cubixConfirm .cf-title {
+  color: #f66; font-size: 13px; letter-spacing: 5px;
+  text-shadow: 0 0 16px #f44;
+  text-align: center; line-height: 1.8;
+}
+#cubixConfirm .cf-msg {
+  color: rgba(255,255,255,0.55); font-size: 9px;
+  letter-spacing: 3px; text-align: center; line-height: 2;
+}
+#cubixConfirm .cf-btns { display: flex; gap: 16px; }
+#cubixConfirm .cf-yes {
+  padding: 12px 28px; border: 1px solid rgba(255,60,60,0.6);
+  background: rgba(255,60,60,0.08); color: #f66;
+  font-family: 'Orbitron', monospace; font-size: 10px;
+  letter-spacing: 4px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+#cubixConfirm .cf-yes:hover, #cubixConfirm .cf-yes:active { background: rgba(255,60,60,0.22); }
+#cubixConfirm .cf-no {
+  padding: 12px 28px; border: 1px solid rgba(0,255,255,0.3);
+  background: rgba(0,255,255,0.04); color: #0ff;
+  font-family: 'Orbitron', monospace; font-size: 10px;
+  letter-spacing: 4px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+#cubixConfirm .cf-no:hover, #cubixConfirm .cf-no:active { background: rgba(0,255,255,0.12); }
 </style>
 </head>
 <body>
+
+<!-- Confirm dialog (reboot / switch device) -->
+<div id="cubixConfirm">
+  <div class="cf-title" id="cfTitle">REBOOT ALL DATA?</div>
+  <div class="cf-msg" id="cfMsg">YOUR PROGRESS WILL BE LOST</div>
+  <div class="cf-btns">
+    <button class="cf-yes" id="cfYes">YES</button>
+    <button class="cf-no"  id="cfNo">NO</button>
+  </div>
+</div>
 
 <!-- Portrait rotation prompt -->
 <div id="portraitBlock">
@@ -717,6 +765,10 @@ canvas { display: block; }
     </div>
     <div class="btn-row" style="margin-top:4px">
       <button class="btn p" id="bHelp">? &nbsp;CONTROLS</button>
+      <button class="btn p" id="bSwitchDevice">⇄ &nbsp;SWITCH DEVICE</button>
+    </div>
+    <div class="btn-row" style="margin-top:4px">
+      <button class="btn p" id="bReboot" style="border-color:rgba(255,60,60,0.5);color:#f66;text-shadow:0 0 8px rgba(255,80,80,0.8);">⚠ &nbsp;REBOOT</button>
     </div>
     <div id="ctrlBox" style="display:none;margin-top:8px;font-size:10px;letter-spacing:2px;line-height:1.8;text-align:center;color:rgba(0,255,255,0.6)">
       A / ◀ &nbsp;&nbsp; ▶ / D &nbsp;&nbsp; MOVE<br>
@@ -2237,6 +2289,51 @@ setTimeout(()=>{
   pb.addEventListener('touchstart', doPause, {passive:false});
   pb.addEventListener('click', doPause);
 },0);
+
+// ══════════════════════════════════════════
+// CONFIRM DIALOG ENGINE
+// ══════════════════════════════════════════
+function cubixConfirm(title, msg, onYes) {
+  const dlg   = document.getElementById('cubixConfirm');
+  const tEl   = document.getElementById('cfTitle');
+  const mEl   = document.getElementById('cfMsg');
+  const yBtn  = document.getElementById('cfYes');
+  const nBtn  = document.getElementById('cfNo');
+  tEl.textContent = title;
+  mEl.textContent = msg;
+  dlg.classList.add('show');
+  // Remove old listeners by cloning
+  const yNew = yBtn.cloneNode(true); yBtn.parentNode.replaceChild(yNew, yBtn);
+  const nNew = nBtn.cloneNode(true); nBtn.parentNode.replaceChild(nNew, nBtn);
+  function close() { document.getElementById('cubixConfirm').classList.remove('show'); }
+  document.getElementById('cfYes').addEventListener('click', () => { close(); onYes(); });
+  document.getElementById('cfNo').addEventListener('click',  close);
+}
+
+// ALL localStorage keys used by the game
+const _ALL_KEYS = ['cubix_hi','cubix_swatch','cubix_silver_unlocked','cubix_gold_unlocked',
+  'cubix_started','cubix_resumeLvl','cubix_resumeX','cubix_resumeY','cubix_v2','cubix_device'];
+
+// ── REBOOT button ──
+document.getElementById('bReboot').addEventListener('click', () => {
+  cubixConfirm('⚠ REBOOT ALL DATA?', 'YOUR PROGRESS WILL BE LOST', () => {
+    cubixConfirm('ARE YOU SURE?', 'THIS CANNOT BE UNDONE', () => {
+      _ALL_KEYS.forEach(k => localStorage.removeItem(k));
+      // Clear device choice and show picker again on reload
+      location.reload();
+    });
+  });
+});
+
+// ── SWITCH DEVICE button ──
+document.getElementById('bSwitchDevice').addEventListener('click', () => {
+  cubixConfirm('SWITCH DEVICE?', 'YOUR PROGRESS IS SAVED — ONLY LAYOUT CHANGES', () => {
+    localStorage.removeItem('cubix_device');
+    // Show device picker overlay without losing any data
+    const picker = document.getElementById('devicePicker');
+    if (picker) picker.style.display = 'flex';
+  });
+});
 
 </script>
 
