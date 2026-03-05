@@ -2329,7 +2329,8 @@ document.getElementById('bReboot').addEventListener('click', () => {
 document.getElementById('bSwitchDevice').addEventListener('click', () => {
   cubixConfirm('SWITCH DEVICE?', 'YOUR PROGRESS IS SAVED — ONLY LAYOUT CHANGES', () => {
     localStorage.removeItem('cubix_device');
-    // Show device picker overlay without losing any data
+    window._deviceType = null;
+    // Re-wire picker buttons to use window.applyDeviceLayout
     const picker = document.getElementById('devicePicker');
     if (picker) picker.style.display = 'flex';
   });
@@ -2505,7 +2506,7 @@ document.getElementById('bSwitchDevice').addEventListener('click', () => {
   // ══════════════════════════════════════════
   // DEVICE PICKER — phone vs tablet
   // ══════════════════════════════════════════
-  let _deviceType = localStorage.getItem('cubix_device') || null; // 'phone' or 'tablet'
+  let _deviceType = localStorage.getItem('cubix_device') || null;
 
   const DEVICE_SIZES = {
     phone:  { left: 78, jump: 86, fly: 64, immort: 72, ctrlH: 115 },
@@ -2514,24 +2515,26 @@ document.getElementById('bSwitchDevice').addEventListener('click', () => {
 
   function applyDeviceLayout(type) {
     _deviceType = type;
+    window._deviceType = type; // expose for scaleGame
     localStorage.setItem('cubix_device', type);
     const s = DEVICE_SIZES[type];
-    const style = document.createElement('style');
-    style.id = 'device-overrides';
     const old = document.getElementById('device-overrides');
     if (old) old.remove();
+    const style = document.createElement('style');
+    style.id = 'device-overrides';
     style.textContent = `
       #btnLeft, #btnRight { width: ${s.left}px !important; height: ${s.left}px !important; }
       #btnJump            { width: ${s.jump}px !important; height: ${s.jump}px !important; }
       #btnFly             { width: ${s.fly}px !important;  height: ${s.fly}px !important; }
       #btnImmort          { width: ${s.immort}px !important; height: ${s.immort}px !important; }
       #mobileControls     { height: ${s.ctrlH}px !important; }
+      .ctrl-zone          { bottom: ${type === 'phone' ? 18 : 22}px !important; }
     `;
     document.head.appendChild(style);
-    // Update CTRL_H used by scaleGame
     window._deviceCtrlH = s.ctrlH;
     scaleGame();
   }
+  window.applyDeviceLayout = applyDeviceLayout; // expose globally
 
   function showDevicePicker() {
     const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
@@ -2546,11 +2549,11 @@ document.getElementById('bSwitchDevice').addEventListener('click', () => {
   const bIpad  = document.getElementById('bDevIpad');
   if (bPhone) bPhone.addEventListener('click', () => {
     document.getElementById('devicePicker').style.display = 'none';
-    applyDeviceLayout('phone');
+    (window.applyDeviceLayout || applyDeviceLayout)('phone');
   });
   if (bIpad) bIpad.addEventListener('click', () => {
     document.getElementById('devicePicker').style.display = 'none';
-    applyDeviceLayout('tablet');
+    (window.applyDeviceLayout || applyDeviceLayout)('tablet');
   });
 
   showDevicePicker();
@@ -2578,7 +2581,7 @@ document.getElementById('bSwitchDevice').addEventListener('click', () => {
 
     const GW = 900, GH = 540;
     const CTRL_H = window._deviceCtrlH || 130;
-    const isPhone = (_deviceType === 'phone');
+    const isPhone = (window._deviceType === 'phone');
 
     // Use visualViewport on iOS Safari for accurate dimensions (avoids browser chrome issues)
     const vp = window.visualViewport;
