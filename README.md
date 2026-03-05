@@ -1,54 +1,51 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
-<meta name="screen-orientation" content="landscape">
-<meta name="x5-orientation" content="landscape">
-<meta name="full-screen" content="yes">
-<meta name="browsermode" content="application">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>CUBIX — Neon Platformer</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-body {
+html, body {
+  width: 100%; height: 100%;
   background: #000;
   font-family: 'Orbitron', monospace;
   color: #0ff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  /* Scrollable — user can drag to reposition */
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
+  touch-action: none;
 }
 
-/* Wrapper stacks game canvas + control bar */
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 #gameWrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   width: 100%;
+  height: 100%;
 }
 
-/* ── Outer container with premium edge glow ── */
-#gameContainer{
-  position:relative;
+/* ── Desktop: fixed 900×540, centered ── */
+#gameContainer {
+  position: relative;
   width: 900px;
   height: 540px;
-  /* Scale down to fit viewport width on smaller screens */
-  max-width: 100vw;
-  overflow:hidden;
+  overflow: hidden;
+  flex-shrink: 0;
   box-shadow:
     0 0 0 1px rgba(0,255,255,0.18),
     0 0 40px rgba(0,255,255,0.12),
     0 0 100px rgba(0,255,255,0.06),
     0 0 0 3px rgba(255,0,255,0.04),
     inset 0 0 80px rgba(0,0,0,0.6);
-  flex-shrink: 0;
 }
+
 /* Corner accent marks */
 #gameContainer::before,#gameContainer::after{
   content:'';position:absolute;width:22px;height:22px;z-index:100;pointer-events:none;
@@ -64,7 +61,18 @@ body {
   border-right:2px solid rgba(255,0,255,0.5);
 }
 
-canvas{display:block;}
+/* ── Horizontal button row for menus ── */
+.btn-row {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.btn-row .btn { margin: 0; }
+
+canvas { display: block; }
 #gameCanvas{position:absolute;top:0;left:0;z-index:1;}
 #scanlineCanvas{position:absolute;top:0;left:0;z-index:2;pointer-events:none;opacity:0.08;}
 
@@ -156,7 +164,7 @@ canvas{display:block;}
 .menu-sub{
   font-size:11px;letter-spacing:8px;color:#f0f;
   text-shadow:0 0 8px #f0f,0 0 22px #f0f;
-  margin-bottom:32px;position:relative;
+  margin-bottom:16px;position:relative;
   animation:subPulse 3s ease-in-out infinite;
 }
 @keyframes subPulse{
@@ -207,7 +215,7 @@ canvas{display:block;}
 }
 
 /* ── STATS ── */
-.stats{display:flex;gap:48px;margin:16px 0;position:relative;}
+.stats{display:flex;gap:32px;margin:10px 0;position:relative;}
 .stat{text-align:center;}
 .stl{font-size:8px;color:rgba(255,255,255,0.25);letter-spacing:5px;margin-bottom:6px;}
 .stv{
@@ -365,10 +373,10 @@ canvas{display:block;}
 }
 
 /* ══════════════════════════════════════════════════
-   MOBILE CONTROLS — Landscape-First Layout
+   MOBILE CONTROLS
    ══════════════════════════════════════════════════ */
 
-/* ── Portrait blocker: show rotate message ── */
+/* Portrait: ask user to rotate */
 #portraitBlock {
   display: none;
   position: fixed; inset: 0; z-index: 9999;
@@ -394,58 +402,33 @@ canvas{display:block;}
   #portraitBlock { display: flex !important; }
 }
 
-/* ── Mobile control bar: hidden by default, shown on touch ── */
+/* ── Control bar: fixed to bottom, floats over game ── */
 #mobileControls {
   display: none;
-  width: 100%;
-  height: 150px;
-  position: relative;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 90px;
+  z-index: 200;
   pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
-  flex-shrink: 0;
-  /* Small gap so controls are visually separated & pushed down */
-  margin-top: 8px;
+  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);
 }
 
-/* ── On touch devices in landscape: fill viewport exactly ── */
-@media (hover: none) and (pointer: coarse) and (orientation: landscape) {
-  html, body {
-    /* No bounce-scrolling during play but allow reposition */
-    height: auto;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-  #mobileControls { display: flex !important; }
-  #gameContainer {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    /* Viewport height minus control bar (150) minus gap (8) minus margin (2) */
-    height: calc(100vh - 164px) !important;
-    min-height: 160px !important;
-  }
-  #gameContainer canvas {
-    width: 100% !important;
-    height: 100% !important;
-  }
-}
-
-/* ── Also show controls on any touch device (for testing in browsers) ── */
 @media (hover: none) and (pointer: coarse) {
   #mobileControls { display: flex !important; }
 }
 
 .ctrl-zone {
   position: absolute;
-  bottom: 0;
+  bottom: 10px;
   pointer-events: all;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
 }
 
-/* padding-bottom pushes buttons down from the top edge of the bar */
-#ctrlLeft  { left: 20px;  flex-direction: row;    align-items: flex-end; gap: 10px; padding-bottom: 12px; }
-#ctrlRight { right: 20px; flex-direction: column; align-items: center;   gap: 8px;  padding-bottom: 12px; }
+#ctrlLeft  { left: 16px;  flex-direction: row;    gap: 10px; }
+#ctrlRight { right: 16px; flex-direction: column; gap: 6px; bottom: 8px; }
 
 .ctrl-btn {
   border-radius: 50%;
@@ -642,12 +625,16 @@ canvas{display:block;}
     <div class="menu-title" data-text="CUBIX">CUBIX</div>
     <div class="menu-sub">BREACH THE GRID</div>
     <div class="menu-line"></div>
-    <div id="hiD">HIGH SCORE: <span id="hiV">0</span></div>
-    <button class="btn" id="bPlay">▶ &nbsp;PLAY</button>
-    <button class="btn" id="bResume2" style="display:none">⟳ &nbsp;RESUME</button>
-    <button class="btn p" id="bWardrobe">◈ &nbsp;WARDROBE</button>
-    <button class="btn p" id="bHelp">? &nbsp;CONTROLS</button>
-    <div id="ctrlBox" style="display:none">
+    <div id="hiD" style="margin-bottom:8px">HIGH SCORE: <span id="hiV">0</span></div>
+    <div class="btn-row">
+      <button class="btn" id="bPlay">▶ &nbsp;PLAY</button>
+      <button class="btn" id="bResume2" style="display:none">⟳ &nbsp;RESUME</button>
+      <button class="btn p" id="bWardrobe">◈ &nbsp;WARDROBE</button>
+    </div>
+    <div class="btn-row" style="margin-top:4px">
+      <button class="btn p" id="bHelp">? &nbsp;CONTROLS</button>
+    </div>
+    <div id="ctrlBox" style="display:none;margin-top:8px;font-size:10px;letter-spacing:2px;line-height:1.8;text-align:center;color:rgba(0,255,255,0.6)">
       A / ◀ &nbsp;&nbsp; ▶ / D &nbsp;&nbsp; MOVE<br>
       SPACE / ↑ &nbsp;&nbsp; JUMP &amp; DOUBLE JUMP<br>
       HOLD JUMP for higher arc &nbsp;|&nbsp; ESC pause
@@ -657,10 +644,12 @@ canvas{display:block;}
   <!-- PAUSE -->
   <div class="menu hidden" id="pauseMenu">
     <div class="menu-title" style="font-size:52px" data-text="PAUSED">PAUSED</div>
-    <div class="menu-sub" style="margin-bottom:28px">SYSTEM HALTED</div>
+    <div class="menu-sub" style="margin-bottom:16px">SYSTEM HALTED</div>
     <div class="menu-line"></div>
-    <button class="btn" id="bResume">▶ &nbsp;RESUME</button>
-    <button class="btn p" id="bQuit">⏹ &nbsp;MAIN MENU</button>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn" id="bResume">▶ &nbsp;RESUME</button>
+      <button class="btn p" id="bQuit">⏹ &nbsp;MAIN MENU</button>
+    </div>
   </div>
 
   <!-- LEVEL COMPLETE -->
@@ -677,8 +666,10 @@ canvas{display:block;}
       <div class="stat"><div class="stl">LEVEL</div><div class="stv" id="lcLv">1</div></div>
       <div class="stat"><div class="stl">ORBS</div><div class="stv" id="lcOr">0/0</div></div>
     </div>
-    <button class="btn" id="bNext">NEXT LEVEL ▶</button>
-    <button class="btn p" id="bLCQ">MAIN MENU</button>
+    <div class="btn-row">
+      <button class="btn" id="bNext">NEXT LEVEL ▶</button>
+      <button class="btn p" id="bLCQ">MAIN MENU</button>
+    </div>
   </div>
 
   <!-- WIN -->
@@ -690,8 +681,10 @@ canvas{display:block;}
       <div class="stat"><div class="stl">FINAL SCORE</div><div class="stv" id="wSc">0</div></div>
       <div class="stat"><div class="stl">HIGH SCORE</div><div class="stv" id="wBe">0</div></div>
     </div>
-    <button class="btn" id="bWP">▶ &nbsp;PLAY AGAIN</button>
-    <button class="btn p" id="bWM">MAIN MENU</button>
+    <div class="btn-row">
+      <button class="btn" id="bWP">▶ &nbsp;PLAY AGAIN</button>
+      <button class="btn p" id="bWM">MAIN MENU</button>
+    </div>
   </div>
 
   <!-- GAME OVER -->
@@ -703,8 +696,10 @@ canvas{display:block;}
       <div class="stat"><div class="stl">SCORE</div><div class="stv" id="goSc">0</div></div>
       <div class="stat"><div class="stl">BEST</div><div class="stv" id="goBe">0</div></div>
     </div>
-    <button class="btn" id="bRe">↺ &nbsp;RETRY</button>
-    <button class="btn p" id="bGOQ">MAIN MENU</button>
+    <div class="btn-row">
+      <button class="btn" id="bRe">↺ &nbsp;RETRY</button>
+      <button class="btn p" id="bGOQ">MAIN MENU</button>
+    </div>
   </div>
 
   <!-- WARDROBE -->
@@ -1034,7 +1029,10 @@ function hit(ax,ay,aw,ah,bx,by,bw,bh){
 function updPlats(dt){
   plats.forEach(pl=>{
     pl.t+=dt;
-    if(pl.type==='moving') pl.x=pl.origX+Math.sin(pl.t*(pl.speed||1))*(pl.moveX||80);
+    if(pl.type==='moving'){
+      pl.prevX = pl.x;
+      pl.x=pl.origX+Math.sin(pl.t*(pl.speed||1))*(pl.moveX||80);
+    }
     if(pl.type==='crumble'&&pl.crT>=0){
       pl.crT-=dt; pl.crA=Math.max(0,pl.crT/0.75);
       if(pl.crT<=0&&!pl.crumbled){ pl.crumbled=true; S.crumble(); }
@@ -1093,6 +1091,10 @@ function updP(dt){
     const bot=pl.y+pl.h-P.y;
     if(P.vy>=0&&top<=32&&top<bot){
       P.y=pl.y-PH; P.vy=0; P.onGnd=true; P.jumps=2; P.coyT=COY;
+      // Carry player with moving platform
+      if(pl.type==='moving' && pl.prevX !== undefined){
+        P.x += pl.x - pl.prevX;
+      }
       if(!wasGnd){
         S.land();
         if(top>6) burst(P.x+PW/2,P.y+PH,8,_CUBE_COLOR,2,0.3,4);
@@ -2280,12 +2282,64 @@ setInterval(()=>{
     try { AC(); } catch(e) {}
   }, { once: true });
 
-  // ── Prevent scroll/zoom during play only ──
+  // ── Prevent scroll/zoom during gameplay ──
   document.addEventListener('touchmove', e => {
-    // Allow scroll on the control bar so user can reposition the page
-    if (e.target.closest('#mobileControls')) return;
-    if (typeof STATE !== 'undefined' && STATE === 'playing') e.preventDefault();
+    e.preventDefault();
   }, { passive: false });
+
+  // ══════════════════════════════════════════
+  // MOBILE SCALE
+  // Game stays 900×540. CSS transform scales it
+  // to fit the screen. Controls are fixed at bottom.
+  // ══════════════════════════════════════════
+  function scaleGame() {
+    const isMobile = ('ontouchstart' in window) || window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    const gc = document.getElementById('gameContainer');
+    const gw = document.getElementById('gameWrapper');
+    if (!isMobile) {
+      gc.style.cssText = '';
+      gw.style.cssText = '';
+      return;
+    }
+    const GW = 900, GH = 540;
+    const CTRL_H = 90;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const availH = vh - CTRL_H;
+    const scale = Math.min(vw / GW, availH / GH);
+    const scaledW = GW * scale;
+    const scaledH = GH * scale;
+    const left = (vw - scaledW) / 2;
+    const top  = (availH - scaledH) / 2;
+
+    // Lock the wrapper to fill available space
+    gw.style.cssText = `
+      position: fixed;
+      top: 0; left: 0;
+      width: ${vw}px;
+      height: ${availH}px;
+      overflow: hidden;
+      display: block;
+    `;
+    // Scale game inside it
+    gc.style.cssText = `
+      position: absolute;
+      width: 900px;
+      height: 540px;
+      top: 0; left: 0;
+      transform-origin: 0 0;
+      transform: translate(${left}px, ${top}px) scale(${scale});
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(0,255,255,0.18),
+        0 0 40px rgba(0,255,255,0.12),
+        0 0 100px rgba(0,255,255,0.06),
+        inset 0 0 80px rgba(0,0,0,0.6);
+    `;
+  }
+
+  scaleGame();
+  window.addEventListener('resize', scaleGame);
+  window.addEventListener('orientationchange', () => setTimeout(scaleGame, 200));
 
 })();
 </script>
