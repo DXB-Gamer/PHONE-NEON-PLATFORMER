@@ -502,6 +502,8 @@ canvas { display: block; }
   --btn-jump: 72px;
   --btn-fly:  50px;
   --btn-imm:  58px;
+  --btn-dj:   58px;
+  --btn-blast: 54px;
   --ctrl-bar-h: 115px;
 }
 
@@ -584,6 +586,30 @@ canvas { display: block; }
   50%      { box-shadow: 0 0 32px rgba(255,220,0,0.85), 0 0 72px rgba(255,180,0,0.3); }
 }
 
+/* ── Down jump & blast buttons ── */
+#btnDownJump {
+  width: var(--btn-dj); height: var(--btn-dj);
+  border-color: rgba(0,255,255,0.45);
+  background: rgba(0,10,12,0.6);
+  box-shadow: 0 0 10px rgba(0,255,255,0.15), inset 0 0 10px rgba(0,0,0,0.6);
+}
+#btnDownJump.pressed {
+  transform: scale(0.87);
+  border-color: rgba(0,255,255,0.95);
+  box-shadow: 0 0 22px rgba(0,255,255,0.65), inset 0 0 12px rgba(0,255,255,0.1);
+}
+#btnBlast {
+  width: var(--btn-blast); height: var(--btn-blast);
+  border-color: rgba(255,140,0,0.5);
+  background: rgba(12,5,0,0.6);
+  box-shadow: 0 0 10px rgba(255,140,0,0.18), inset 0 0 10px rgba(0,0,0,0.6);
+}
+#btnBlast.pressed {
+  transform: scale(0.87);
+  border-color: rgba(255,180,0,0.95);
+  box-shadow: 0 0 24px rgba(255,160,0,0.7), inset 0 0 12px rgba(255,120,0,0.12);
+}
+
 /* ── Right column bottom row: immortal + jump ── */
 #ctrlRightBottom {
   display: flex;
@@ -606,8 +632,12 @@ canvas { display: block; }
   color: rgba(0,255,255,0.2) !important;
   background: rgba(0,0,0,0.55) !important;
   border: 1px solid rgba(0,255,255,0.08) !important;
-  padding: 5px 10px !important;
+  padding: 8px 14px !important;
   cursor: pointer !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  -webkit-tap-highlight-color: transparent !important;
+  touch-action: manipulation !important;
   transition: color 0.2s, border-color 0.2s, box-shadow 0.2s !important;
 }
 #_redeemBtn:hover {
@@ -721,15 +751,18 @@ canvas { display: block; }
 </div>
 
 <!-- DEVICE PICKER -->
-<div id="devicePicker" style="display:none;position:fixed;inset:0;z-index:10000;background:#000;flex-direction:column;align-items:center;justify-content:center;gap:28px;font-family:'Orbitron',monospace;">
+<div id="devicePicker" style="display:flex;position:fixed;inset:0;z-index:10000;background:#000;flex-direction:column;align-items:center;justify-content:center;gap:28px;font-family:'Orbitron',monospace;">
   <div style="color:#0ff;font-size:14px;letter-spacing:6px;text-shadow:0 0 18px #0ff;">SELECT YOUR DEVICE</div>
   <div style="color:rgba(0,255,255,0.45);font-size:9px;letter-spacing:4px;text-align:center;line-height:2;">OPTIMISES LAYOUT &amp; CONTROLS</div>
-  <div style="display:flex;gap:20px;">
-    <button id="bDevPhone" style="width:160px;padding:22px 0;border:1px solid rgba(0,255,255,0.4);background:rgba(0,255,255,0.04);color:#0ff;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;-webkit-tap-highlight-color:transparent;">
+  <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
+    <button id="bDevPhone" style="width:140px;padding:20px 0;border:1px solid rgba(0,255,255,0.4);background:rgba(0,255,255,0.04);color:#0ff;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;-webkit-tap-highlight-color:transparent;">
       <span style="font-size:32px;">📱</span>PHONE
     </button>
-    <button id="bDevIpad" style="width:160px;padding:22px 0;border:1px solid rgba(255,0,255,0.4);background:rgba(255,0,255,0.04);color:#f0f;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;-webkit-tap-highlight-color:transparent;">
+    <button id="bDevIpad" style="width:140px;padding:20px 0;border:1px solid rgba(255,0,255,0.4);background:rgba(255,0,255,0.04);color:#f0f;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;-webkit-tap-highlight-color:transparent;">
       <span style="font-size:32px;">📲</span>TABLET
+    </button>
+    <button id="bDevLaptop" style="width:140px;padding:20px 0;border:1px solid rgba(0,255,100,0.4);background:rgba(0,255,100,0.04);color:#0f6;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;-webkit-tap-highlight-color:transparent;">
+      <span style="font-size:32px;">💻</span>LAPTOP
     </button>
   </div>
 </div>
@@ -743,26 +776,7 @@ canvas { display: block; }
   <div id="cpIndicator">✦ CHECKPOINT SAVED ✦</div>
   <div id="_lvlBadge"></div>
   <!-- Pause button — sits top-right of canvas, visible during play -->
-  <button id="_pauseBtn" style="
-    display:none;
-    position:absolute;
-    top:8px; right:8px;
-    z-index:20;
-    width:34px; height:34px;
-    border-radius:6px;
-    border:1.5px solid rgba(0,255,255,0.35);
-    background:rgba(0,0,0,0.55);
-    color:rgba(0,255,255,0.9);
-    font-size:14px;
-    line-height:1;
-    cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    -webkit-tap-highlight-color:transparent;
-    touch-action:none;
-    backdrop-filter:blur(6px);
-    -webkit-backdrop-filter:blur(6px);
-    transition:background 0.15s, box-shadow 0.15s;
-  ">⏸</button>
+  <button id="_pauseBtn" style="position:absolute;top:8px;left:8px;z-index:20;width:38px;height:38px;border-radius:8px;border:2px solid rgba(0,255,255,0.5);background:rgba(0,0,0,0.65);color:rgba(0,255,255,1);font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:none;box-shadow:0 0 10px rgba(0,255,255,0.3);">⏸</button>
   <!-- Mobile level switcher — visible to admin/owner only -->
   <button id="_lvlSwitchBtn" style="display:none;position:absolute;top:6px;left:8px;z-index:20;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(0,255,100,0.7);background:rgba(0,0,0,0.6);border:1px solid rgba(0,255,100,0.25);padding:4px 8px;cursor:pointer;">LVL ▲</button>
 
@@ -921,7 +935,7 @@ canvas { display: block; }
       </svg>
     </button>
 
-    <!-- Bottom row: immortal shield (left) + jump (right) -->
+    <!-- Bottom row: immortal shield (left) + down-jump + jump (right) -->
     <div id="ctrlRightBottom">
 
       <!-- IMMORTAL shield — owner only -->
@@ -946,6 +960,23 @@ canvas { display: block; }
                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           <!-- Star accent at top -->
           <circle cx="16" cy="10" r="2" fill="rgba(255,220,60,0.7)"/>
+        </svg>
+      </button>
+      <!-- BLAST DOWN JUMP — all players -->
+      <button class="ctrl-btn" id="btnBlast" aria-label="Blast Jump">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <defs>
+            <filter id="fBlast" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <!-- Down arrow = blast down -->
+          <polygon points="16,26 6,12 26,12" fill="rgba(255,140,0,0.9)" filter="url(#fBlast)"/>
+          <!-- Flame lines -->
+          <line x1="16" y1="6" x2="16" y2="11" stroke="rgba(255,200,60,0.8)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="11" y1="8" x2="13" y2="11" stroke="rgba(255,160,40,0.6)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="21" y1="8" x2="19" y2="11" stroke="rgba(255,160,40,0.6)" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </button>
 
@@ -974,6 +1005,8 @@ canvas { display: block; }
         </svg>
       </button>
 
+
+
     </div>
   </div>
 
@@ -991,6 +1024,7 @@ canvas { display: block; }
 const CV = document.getElementById('gameCanvas');
 const CX = CV.getContext('2d');
 const W=900, H=540;
+CX.imageSmoothingEnabled = false;
 
 // ── Audio ────────────────────────────────────
 let _ac=null;
@@ -1017,25 +1051,14 @@ const S={
   crumble(){ tone(90,'sawtooth',0.12,0.18); },
 };
 let ambOn=false;
-function startAmbient(){
-  if(ambOn)return; ambOn=true;
-  try{
-    const a=AC();
-    [55,82.5,110].forEach(f=>{
-      const o=a.createOscillator(),g=a.createGain(),flt=a.createBiquadFilter();
-      o.type='sine'; o.frequency.value=f;
-      flt.type='lowpass'; flt.frequency.value=360; g.gain.value=0.033;
-      o.connect(flt); flt.connect(g); g.connect(a.destination); o.start();
-    });
-  }catch(e){}
-}
+function startAmbient(){ ambOn=true; /* ambient removed — was causing audio glitch */ }
 
 // ── Input ────────────────────────────────────
 const K={}, JP={};
 document.addEventListener('keydown',e=>{
   if(!K[e.code]) JP[e.code]=true;
   K[e.code]=true;
-  if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','ShiftRight'].includes(e.code)) e.preventDefault();
 });
 document.addEventListener('keyup',e=>{ K[e.code]=false; });
 function clrJP(){ for(const k in JP) delete JP[k]; }
@@ -1047,55 +1070,55 @@ const sp=(x,y,w)=>({x,y,w,h:16});
 
 const LEVELS=[
   {name:'BOOT SEQUENCE',bgHue:180,
-   platforms:[p(0,492,420),p(460,436,120),p(632,380,110),p(802,325,120),p(992,436,100),p(1112,375,200),p(1362,344,160)],
-   orbs:[ob(200,478),ob(510,422),ob(850,311),ob(1050,422),ob(1200,361),ob(1440,330)],
+   platforms:[p(0,443,420),p(460,392,120),p(632,342,110),p(802,292,120),p(992,392,100),p(1112,338,200),p(1362,310,160)],
+   orbs:[ob(200,430),ob(510,380),ob(850,280),ob(1050,380),ob(1200,325),ob(1440,297)],
    spikes:[],
-   start:{x:50,y:464},goal:{x:1490,y:330}},
+   start:{x:50,y:418},goal:{x:1490,y:277}},
   {name:'GRID NETWORK',bgHue:200,
-   platforms:[p(0,492,300),p(362,436,100),p(512,380,100),p(662,436,80),p(792,348,100),p(942,400,100),p(1092,318,120),p(1262,368,100),p(1412,300,150),p(1612,348,120)],
-   orbs:[ob(150,478),ob(410,422),ob(840,334),ob(1000,386),ob(1150,304),ob(1460,286),ob(1660,334)],
-   spikes:[sp(702,420,56)],
-   start:{x:50,y:464},goal:{x:1680,y:334}},
+   platforms:[p(0,443,300),p(362,392,100),p(512,342,100),p(662,392,80),p(792,313,100),p(942,360,100),p(1092,286,120),p(1262,331,100),p(1412,270,150),p(1612,313,120)],
+   orbs:[ob(150,430),ob(410,380),ob(840,301),ob(1000,347),ob(1150,274),ob(1460,257),ob(1660,301)],
+   spikes:[sp(702,378,56)],
+   start:{x:50,y:418},goal:{x:1680,y:281}},
   {name:'PHASE SHIFT',bgHue:260,
-   platforms:[p(0,492,300),p(382,424,100,{type:'moving',moveX:80,speed:1.2}),p(572,370,90),p(712,424,90,{type:'moving',moveX:60,speed:1.5}),p(912,348,120),p(1112,400,80,{type:'moving',moveX:100,speed:1.0}),p(1312,318,100),p(1492,378,80,{type:'moving',moveX:70,speed:1.8}),p(1662,298,150)],
-   orbs:[ob(150,478),ob(432,410),ob(617,356),ob(762,410),ob(970,334),ob(1360,304),ob(1710,284)],
-   spikes:[sp(616,354,48),sp(962,332,38)],
-   start:{x:50,y:464},goal:{x:1740,y:284}},
+   platforms:[p(0,443,300),p(382,382,100,{type:'moving',moveX:80,speed:1.2}),p(572,333,90),p(712,382,90,{type:'moving',moveX:60,speed:1.5}),p(912,313,120),p(1112,360,80,{type:'moving',moveX:100,speed:1.0}),p(1312,286,100),p(1492,340,80,{type:'moving',moveX:70,speed:1.8}),p(1662,268,150)],
+   orbs:[ob(150,430),ob(432,369),ob(617,320),ob(762,369),ob(970,301),ob(1360,274),ob(1710,256)],
+   spikes:[sp(616,319,48),sp(962,299,38)],
+   start:{x:50,y:418},goal:{x:1740,y:236}},
   {name:'DECAY PROTOCOL',bgHue:300,
-   platforms:[p(0,492,300),p(372,436,100,{type:'crumble'}),p(532,390,90,{type:'crumble'}),p(692,436,90),p(832,378,80,{type:'crumble'}),p(972,328,120),p(1132,378,90,{type:'crumble'}),p(1292,328,100),p(1472,378,80,{type:'crumble'}),p(1612,298,180)],
-   orbs:[ob(150,478),ob(580,376),ob(730,422),ob(1020,314),ob(1330,314),ob(1680,284)],
-   spikes:[sp(740,420,48),sp(1016,312,38)],
-   start:{x:50,y:464},goal:{x:1700,y:284}},
+   platforms:[p(0,443,300),p(372,392,100,{type:'crumble'}),p(532,351,90,{type:'crumble'}),p(692,392,90),p(832,340,80,{type:'crumble'}),p(972,295,120),p(1132,340,90,{type:'crumble'}),p(1292,295,100),p(1472,340,80,{type:'crumble'}),p(1612,268,180)],
+   orbs:[ob(150,430),ob(580,338),ob(730,380),ob(1020,283),ob(1330,283),ob(1680,256)],
+   spikes:[sp(740,378,48),sp(1016,281,38)],
+   start:{x:50,y:418},goal:{x:1700,y:236}},
   {name:'SPIKE MATRIX',bgHue:0,
-   platforms:[p(0,492,300),p(372,420,80),p(512,368,100),p(672,420,80),p(812,358,100),p(972,420,80),p(1112,348,120),p(1292,398,80,{type:'moving',moveX:60,speed:1.6}),p(1462,328,100),p(1652,378,80,{type:'crumble'}),p(1792,308,160)],
-   orbs:[ob(560,354),ob(860,344),ob(1160,334),ob(1500,314),ob(1840,294)],
-   spikes:[sp(386,404,38),sp(530,352,38),sp(830,342,38),sp(1130,332,38),sp(1670,362,38)],
-   start:{x:50,y:464},goal:{x:1880,y:294}},
+   platforms:[p(0,443,300),p(372,378,80),p(512,331,100),p(672,378,80),p(812,322,100),p(972,378,80),p(1112,313,120),p(1292,358,80,{type:'moving',moveX:60,speed:1.6}),p(1462,295,100),p(1652,340,80,{type:'crumble'}),p(1792,277,160)],
+   orbs:[ob(560,319),ob(860,310),ob(1160,301),ob(1500,283),ob(1840,265)],
+   spikes:[sp(386,364,38),sp(530,317,38),sp(830,308,38),sp(1130,299,38),sp(1670,326,38)],
+   start:{x:50,y:418},goal:{x:1880,y:245}},
   {name:'MULTI-PATH',bgHue:140,
-   platforms:[p(0,492,280),p(352,388,80,{type:'moving',moveX:80,speed:1.4}),p(532,440,80,{type:'crumble'}),p(672,378,90),p(822,440,80,{type:'crumble'}),p(952,358,120,{type:'moving',moveX:100,speed:1.2}),p(1132,430,80,{type:'crumble'}),p(1272,358,90),p(1432,308,90,{type:'moving',moveX:80,speed:2.0}),p(1612,358,80,{type:'crumble'}),p(1752,278,180)],
-   orbs:[ob(140,478),ob(395,374),ob(710,364),ob(1005,344),ob(1460,294),ob(1840,264)],
-   spikes:[sp(570,424,38),sp(860,424,38),sp(1170,414,38),sp(1650,342,38)],
-   start:{x:50,y:464},goal:{x:1840,y:264}},
+   platforms:[p(0,443,280),p(352,349,80,{type:'moving',moveX:80,speed:1.4}),p(532,396,80,{type:'crumble'}),p(672,340,90),p(822,396,80,{type:'crumble'}),p(952,322,120,{type:'moving',moveX:100,speed:1.2}),p(1132,387,80,{type:'crumble'}),p(1272,322,90),p(1432,277,90,{type:'moving',moveX:80,speed:2.0}),p(1612,322,80,{type:'crumble'}),p(1752,250,180)],
+   orbs:[ob(140,430),ob(395,337),ob(710,328),ob(1005,310),ob(1460,265),ob(1840,238)],
+   spikes:[sp(570,382,38),sp(860,382,38),sp(1170,373,38),sp(1650,308,38)],
+   start:{x:50,y:418},goal:{x:1840,y:218}},
   {name:'VELOCITY GRID',bgHue:220,
-   platforms:[p(0,468,200),p(292,408,80,{type:'moving',moveX:120,speed:2.5}),p(492,358,70,{type:'moving',moveX:90,speed:2.8}),p(692,408,80),p(832,348,80,{type:'moving',moveX:110,speed:3.0}),p(1032,398,80,{type:'crumble'}),p(1172,328,90,{type:'moving',moveX:100,speed:2.2}),p(1392,378,80,{type:'crumble'}),p(1532,298,100,{type:'moving',moveX:80,speed:2.6}),p(1732,348,80,{type:'crumble'}),p(1872,258,180)],
-   orbs:[ob(100,454),ob(332,394),ob(527,344),ob(730,394),ob(1210,314),ob(1575,284),ob(1940,244)],
-   spikes:[sp(710,392,48),sp(1070,382,38),sp(1430,362,38),sp(1770,332,38)],
-   start:{x:50,y:440},goal:{x:1960,y:244}},
+   platforms:[p(0,421,200),p(292,367,80,{type:'moving',moveX:120,speed:2.5}),p(492,322,70,{type:'moving',moveX:90,speed:2.8}),p(692,367,80),p(832,313,80,{type:'moving',moveX:110,speed:3.0}),p(1032,358,80,{type:'crumble'}),p(1172,295,90,{type:'moving',moveX:100,speed:2.2}),p(1392,340,80,{type:'crumble'}),p(1532,268,100,{type:'moving',moveX:80,speed:2.6}),p(1732,313,80,{type:'crumble'}),p(1872,232,180)],
+   orbs:[ob(100,409),ob(332,355),ob(527,310),ob(730,355),ob(1210,283),ob(1575,256),ob(1940,220)],
+   spikes:[sp(710,353,48),sp(1070,344,38),sp(1430,326,38),sp(1770,299,38)],
+   start:{x:50,y:396},goal:{x:1960,y:200}},
   {name:'CRUMBLE STORM',bgHue:30,
-   platforms:[p(0,468,180),p(262,408,70,{type:'crumble'}),p(402,358,70,{type:'crumble'}),p(542,308,70,{type:'crumble'}),p(682,358,80),p(822,308,70,{type:'crumble'}),p(962,358,80,{type:'moving',moveX:100,speed:2.0}),p(1142,298,70,{type:'crumble'}),p(1282,348,80,{type:'moving',moveX:90,speed:2.5}),p(1462,278,70,{type:'crumble'}),p(1602,328,80,{type:'moving',moveX:80,speed:3.0}),p(1782,258,200)],
-   orbs:[ob(90,454),ob(295,394),ob(436,344),ob(575,294),ob(715,344),ob(1180,284),ob(1830,244)],
-   spikes:[sp(692,342,38),sp(1012,342,38),sp(1652,312,38)],
-   start:{x:50,y:440},goal:{x:1880,y:244}},
+   platforms:[p(0,421,180),p(262,367,70,{type:'crumble'}),p(402,322,70,{type:'crumble'}),p(542,277,70,{type:'crumble'}),p(682,322,80),p(822,277,70,{type:'crumble'}),p(962,322,80,{type:'moving',moveX:100,speed:2.0}),p(1142,268,70,{type:'crumble'}),p(1282,313,80,{type:'moving',moveX:90,speed:2.5}),p(1462,250,70,{type:'crumble'}),p(1602,295,80,{type:'moving',moveX:80,speed:3.0}),p(1782,232,200)],
+   orbs:[ob(90,409),ob(295,355),ob(436,310),ob(575,265),ob(715,310),ob(1180,256),ob(1830,220)],
+   spikes:[sp(692,308,38),sp(1012,308,38),sp(1652,281,38)],
+   start:{x:50,y:396},goal:{x:1880,y:200}},
   {name:'SYSTEM BREACH',bgHue:280,
-   platforms:[p(0,468,160),p(232,398,70,{type:'moving',moveX:80,speed:2.5}),p(412,348,60,{type:'crumble'}),p(552,398,70,{type:'moving',moveX:70,speed:3.2}),p(732,328,70,{type:'crumble'}),p(882,388,70,{type:'moving',moveX:100,speed:2.8}),p(1072,308,70,{type:'crumble'}),p(1212,368,70,{type:'moving',moveX:80,speed:3.5}),p(1402,288,70,{type:'crumble'}),p(1542,348,70,{type:'moving',moveX:90,speed:2.4}),p(1732,268,80,{type:'crumble'}),p(1872,218,180)],
-   orbs:[ob(80,454),ob(265,384),ob(587,384),ob(766,314),ob(917,374),ob(1245,354),ob(1577,334),ob(1940,204)],
-   spikes:[sp(442,332,38),sp(772,312,38),sp(1112,292,38),sp(1442,272,38),sp(1770,252,38)],
-   start:{x:50,y:440},goal:{x:1960,y:204}},
+   platforms:[p(0,421,160),p(232,358,70,{type:'moving',moveX:80,speed:2.5}),p(412,313,60,{type:'crumble'}),p(552,358,70,{type:'moving',moveX:70,speed:3.2}),p(732,295,70,{type:'crumble'}),p(882,349,70,{type:'moving',moveX:100,speed:2.8}),p(1072,277,70,{type:'crumble'}),p(1212,331,70,{type:'moving',moveX:80,speed:3.5}),p(1402,259,70,{type:'crumble'}),p(1542,313,70,{type:'moving',moveX:90,speed:2.4}),p(1732,241,80,{type:'crumble'}),p(1872,196,180)],
+   orbs:[ob(80,409),ob(265,346),ob(587,346),ob(766,283),ob(917,337),ob(1245,319),ob(1577,301),ob(1940,184)],
+   spikes:[sp(442,299,38),sp(772,281,38),sp(1112,263,38),sp(1442,245,38),sp(1770,227,38)],
+   start:{x:50,y:396},goal:{x:1960,y:164}},
   {name:'CORE OVERLOAD',bgHue:350,
-   platforms:[p(0,468,140),p(222,388,60,{type:'moving',moveX:100,speed:3.5}),p(412,328,60,{type:'crumble'}),p(552,388,60,{type:'moving',moveX:80,speed:4.0}),p(712,308,60,{type:'crumble'}),p(862,378,60,{type:'moving',moveX:110,speed:3.0}),p(1052,288,60,{type:'crumble'}),p(1192,358,60,{type:'moving',moveX:90,speed:4.2}),p(1382,268,60,{type:'crumble'}),p(1522,338,60,{type:'moving',moveX:80,speed:3.8}),p(1712,238,70,{type:'crumble'}),p(1852,298,60,{type:'moving',moveX:60,speed:4.5}),p(1992,178,250)],
-   orbs:[ob(70,454),ob(252,374),ob(582,374),ob(742,294),ob(892,364),ob(1222,344),ob(1552,324),ob(1882,284),ob(2110,164)],
-   spikes:[sp(442,312,38),sp(742,292,38),sp(1092,272,38),sp(1422,252,38),sp(1750,222,38)],
-   start:{x:50,y:440},goal:{x:2080,y:164}},
+   platforms:[p(0,421,140),p(222,349,60,{type:'moving',moveX:100,speed:3.5}),p(412,295,60,{type:'crumble'}),p(552,349,60,{type:'moving',moveX:80,speed:4.0}),p(712,277,60,{type:'crumble'}),p(862,340,60,{type:'moving',moveX:110,speed:3.0}),p(1052,259,60,{type:'crumble'}),p(1192,322,60,{type:'moving',moveX:90,speed:4.2}),p(1382,241,60,{type:'crumble'}),p(1522,304,60,{type:'moving',moveX:80,speed:3.8}),p(1712,214,70,{type:'crumble'}),p(1852,268,60,{type:'moving',moveX:60,speed:4.5}),p(1992,160,250)],
+   orbs:[ob(70,409),ob(252,337),ob(582,337),ob(742,265),ob(892,328),ob(1222,310),ob(1552,292),ob(1882,256),ob(2110,148)],
+   spikes:[sp(442,281,38),sp(742,263,38),sp(1092,245,38),sp(1422,227,38),sp(1750,200,38)],
+   start:{x:50,y:396},goal:{x:2080,y:128}},
 ];
 
 // ── Game state ───────────────────────────────
@@ -1113,7 +1136,7 @@ let dying=false;
 
 // ── Player ───────────────────────────────────
 const PW=28,PH=28;
-const GR=1380,JF=-510,DJF=-460,SPD=225,ACC=2400,DEC=3000,MXF=820;
+const GR=1380,JF=-573,DJF=-573,TJF=-520,SPD=225,ACC=2400,DEC=3000,MXF=820;
 const COY=0.1,JBF=0.12;
 let P={};
 
@@ -1198,7 +1221,26 @@ function updP(dt){
 
   const lft=K['ArrowLeft']||K['KeyA'];
   const rgt=K['ArrowRight']||K['KeyD'];
-  const jmp=JP['Space']||JP['ArrowUp']||JP['KeyW'];
+
+  // N: Up/Space/W = jump.  A&O: Up/Space/W = blast jump UP (from ground or air), E = normal double jump
+  const jmp = _isAdmin()
+    ? JP['KeyE']
+    : (JP['ArrowUp']||JP['Space']||JP['KeyW']);
+
+  // ROCKET UP — A&O: HOLD Up/Space/W/Shift = instant smooth rocket, works from ground too
+  const rocketUp = _isAdmin() && (K['ArrowUp']||K['Space']||K['KeyW']||K['ShiftLeft']||K['ShiftRight']);
+  if(rocketUp){
+    P.vy = Math.max(P.vy - 2400*dt, -780);
+    P.onGnd = false;
+    const _bu1 = (_usingGold)?'#ffd700':(_usingSilver)?'#c8d8e8':_CUBE_COLOR;
+    const _bu2 = (_usingGold||_usingSilver)?'#ffffff':'#f0f';
+    const _bu3 = (_usingGold)?'#ffe066':(_usingSilver)?'#e8f0f8':'#fff';
+    burst(P.x+PW/2,P.y+PH,18,_bu1,6,0.4,6,-0.6);
+    burst(P.x+PW/2,P.y+PH,14,_bu2,5,0.35,5,-0.5);
+    burst(P.x+PW/2,P.y+PH,10,_bu3,4,0.3,4,-0.4);
+    burst(P.x+PW/2,P.y+PH,8,'#fff',3.5,0.28,3,-0.35);
+    burst(P.x+PW/2,P.y+PH,6,_bu1,2.5,0.22,2,-0.3);
+  }
 
   const tVX=rgt?SPD:lft?-SPD:0;
   if(tVX!==0){
@@ -1211,26 +1253,67 @@ function updP(dt){
     else P.vx-=Math.sign(P.vx)*d;
   }
 
-  if(P.vy<0&&!(K['Space']||K['ArrowUp']||K['KeyW'])) P.vy+=GR*1.7*dt;
+
+  if(rocketUp){ /* gravity overridden by rocket */ }
+  else if(P.vy<0&&!(K['KeyE']||(_isAdmin()&&(K['Space']||K['ArrowUp']||K['KeyW'])))) P.vy+=GR*1.7*dt;
+  else if(!_isAdmin()&&(K['ArrowUp']||K['Space']||K['KeyW'])&&P.vy>0) P.vy+=GR*0.999*dt;
   else P.vy+=GR*dt;
   P.vy=Math.min(P.vy,MXF);
 
-  if(P.onGnd) P.coyT=COY;
-  else if(P.coyT>0) P.coyT-=dt;
-
-  if(jmp) P.jBufT=JBF;
-  else if(P.jBufT>0) P.jBufT-=dt;
-
-  if(P.jBufT>0){
-    if(P.coyT>0||P.onGnd){
-      P.vy=JF; P.jumps=1; P.coyT=0; P.jBufT=0;
-      S.jump(); burst(P.x+PW/2,P.y+PH,14,_CUBE_COLOR,3.5,0.4,5);
-    } else if(P.jumps>0){
-      P.vy=DJF; P.jumps=0; P.jBufT=0;
-      S.dJump(); burst(P.x+PW/2,P.y+PH/2,22,'#f0f',4.5,0.5,6);
-    }
+  // ── Jump logic ──
+  if(P.onGnd){
+    P.jumps  = 2;  // everyone = double jump
+    P.djDown = _isAdmin() ? 999 : 999;  // everyone gets infinite down-jumps (normal too per request)
+    P.coyT   = COY;
+  } else {
+    if(P.coyT > 0) P.coyT -= dt;
   }
 
+  // S / ArrowDown = down-jump (admin/owner only) — launches downward
+  const dnJmp = (K['KeyS']||K['ArrowDown']);
+  if(dnJmp && P.djDown > 0 && !P.onGnd){
+    P.vy = -DJF * 1.2;
+    P.djDown--;
+    const _dc1 = (_usingGold) ? '#ffd700' : (_usingSilver) ? '#c8d8e8' : _CUBE_COLOR;
+    const _dc2 = (_usingGold||_usingSilver) ? '#ffffff' : '#f0f';
+    const _dc3 = (_usingGold) ? '#ffe066' : (_usingSilver) ? '#e8f0f8' : '#fff';
+    burst(P.x+PW/2,P.y+PH/2,18,_dc1,6,0.5,6);
+    burst(P.x+PW/2,P.y+PH/2,14,_dc2,5,0.45,5);
+    burst(P.x+PW/2,P.y+PH/2,10,_dc3,4,0.4,4);
+  }
+
+  if(jmp) P.jBufT = JBF;
+  else if(P.jBufT > 0) P.jBufT -= dt;
+
+  if(P.jBufT > 0){
+    if(P.onGnd || P.coyT > 0){
+      // Ground / coyote jump — cube colour + purple for admin/owner
+      P.vy = JF; P.coyT = 0; P.jBufT = 0; P.jumps = 1;
+      S.jump();
+      burst(P.x+PW/2,P.y+PH,14,_CUBE_COLOR,3.5,0.4,5);
+      if(_isAdmin()) burst(P.x+PW/2,P.y+PH,8,'#f0f',3,0.35,4);
+    } else if(P.jumps > 0){
+      const used = 2-P.jumps;
+      let c1, c2, c3;
+      if(_isAdmin()){
+        const seq = ['_CUBE_COLOR','#f0f','#fff'];
+        c1 = seq[used%3]==='_CUBE_COLOR'?_CUBE_COLOR:seq[used%3];
+        c2 = seq[(used+1)%3]==='_CUBE_COLOR'?_CUBE_COLOR:seq[(used+1)%3];
+        c3 = seq[(used+2)%3]==='_CUBE_COLOR'?_CUBE_COLOR:seq[(used+2)%3];
+      } else {
+        c1 = used%2===0?_CUBE_COLOR:'#f0f';
+        c2 = used%2===0?'#f0f':_CUBE_COLOR;
+        c3 = '#fff';
+      }
+      // More particles per jump — jump 2 gets more, jump 3 (triple) gets most
+      const n = _isAdmin() ? [22,28,36][used] || 36 : 22;
+      P.vy = DJF; P.jumps--; P.jBufT = 0;
+      S.dJump();
+      burst(P.x+PW/2,P.y+PH/2,n,c1,4.5,0.5,6);
+      burst(P.x+PW/2,P.y+PH/2,Math.round(n*0.6),c2,3.5,0.45,5);
+      if(_isAdmin()) burst(P.x+PW/2,P.y+PH/2,Math.round(n*0.4),c3,3,0.4,4);
+    }
+  }
   P.x+=P.vx*dt; P.y+=P.vy*dt;
   const wasGnd=P.onGnd;
   P.onGnd=false;
@@ -1272,9 +1355,12 @@ function updP(dt){
     }
   });
 
-  spkList.forEach(sk=>{
-    if(hit(P.x+3,P.y+4,PW-6,PH-5,sk.x,sk.y,sk.w,sk.h)) killP();
-  });
+  // Spikes archived (no collision) if immortal, active otherwise
+  if(!_immortal){
+    spkList.forEach(sk=>{
+      if(hit(P.x+3,P.y+4,PW-6,PH-5,sk.x,sk.y,sk.w,sk.h)) killP();
+    });
+  }
 
   orbList.forEach(o=>{
     if(o.collected) return;
@@ -1294,11 +1380,12 @@ function updP(dt){
       S.portal();
       burst(goal.x,goal.y,55,_CUBE_COLOR,9,1.1,8);
       burst(goal.x,goal.y,30,'#f0f',6,0.9,6);
-      setTimeout(showLC,700);
+      // Swirl zoom-out then show level complete screen
+      setTimeout(showLC, 400);
     }
   }
 
-  if(P.y>H+160) killP();
+  if(P.y>H+160){ if(_immortal){ P.y=H-60; P.vy=-400; P.x=Math.max(80,P.x); } else killP(); }
 
   P.trailT+=dt;
   if(Math.abs(P.vx)>65&&P.trailT>0.032){
@@ -1317,6 +1404,12 @@ function updP(dt){
 
 // ── Kill ─────────────────────────────────────
 function killP(){
+  // Immortal = fully protected from void and spikes
+  if(_immortal){
+    // Bounce back from void
+    if(P.y > H+160){ P.y = H-60; P.vy = -400; }
+    return;
+  }
   if(P.dead||dying) return;
   dying=true; P.dead=true;
   S.death(); doShake(12,0.55); flashScr();
@@ -1455,9 +1548,9 @@ function drwP(){
 
 function drwHUD(){
   CX.save();
-  // Lives centered at top
+  // Lives — offset right to avoid pause button at top-left
   const totalW = lives * 26 - 8;
-  const startX = W/2 - totalW/2;
+  const startX = W/2 - totalW/2 + 20; // shift right slightly
   for(let i=0;i<lives;i++){
     const lx=startX+i*26, ly=14;
     CX.shadowBlur=10; CX.shadowColor=_CUBE_COLOR;
@@ -1535,9 +1628,11 @@ function drwTitle(ts){
   }
 }
 
-// ── Animated menu transitions ──
 let _menuTransTimer = null;
 function showMenu(id, instant){
+  // Don't show any game menu while device picker is still open
+  const picker = document.getElementById('devicePicker');
+  if (picker && picker.style.display !== 'none' && id) return;
   const all = ['mainMenu','pauseMenu','lcMenu','goMenu','winMenu'];
   if(instant){
     all.forEach(m=>{ const el=document.getElementById(m); if(el){ el.classList.add('hidden'); el.classList.remove('menu-entering','menu-leaving'); } });
@@ -1573,7 +1668,13 @@ function showLC(){
     el.classList.remove('on');
     if(i<st) setTimeout(()=>el.classList.add('on'),i*300+200);
   });
-  showMenu('lcMenu');
+  // Force show lcMenu directly — bypass all guards
+  ['mainMenu','pauseMenu','lcMenu','goMenu','winMenu'].forEach(m=>{
+    const el=document.getElementById(m);
+    if(el) el.classList.add('hidden');
+  });
+  const lc=document.getElementById('lcMenu');
+  if(lc){ lc.classList.remove('hidden'); }
 }
 function showGO(){
   document.getElementById('goSc').textContent=score;
@@ -1604,7 +1705,9 @@ document.addEventListener('keydown',e=>{
 });
 
 document.getElementById('hiV').textContent=hiScore;
-showMenu('mainMenu');
+
+// Always hide menu on load — device picker (script below) will show menu after choice
+showMenu(null, true);
 requestAnimationFrame(ts=>{ last=ts; loop(ts); });
 </script>
 
@@ -1637,10 +1740,24 @@ const SWATCHES = [
   { name:'Original',     hex:'#0099ee', light:'#0099ee', dark:'#0044cc', stroke:'rgba(0,153,238,0.22)'  },
 ];
 
+// ── Early constants needed before any IIFE runs ──
+let _priv_early = 'none';
+function _isOwner_early(){ return _priv_early==='owner'; }
+const _SILVER_EARNED = 'cubix_silver_earned';
+const _GOLD_EARNED   = 'cubix_gold_earned';
+
 const _SILVER_KEY = 'cubix_silver_unlocked';
 const _GOLD_KEY   = 'cubix_gold_unlocked';
-function _isSilverUnlocked(){ return localStorage.getItem(_SILVER_KEY)==='1'; }
-function _isGoldUnlocked()  { return localStorage.getItem(_GOLD_KEY)==='1'; }
+function _isSilverUnlocked(){ return localStorage.getItem(_SILVER_KEY)==='1' || (typeof _isOwner==='function'?_isOwner():_isOwner_early()); }
+function _isGoldUnlocked()  { return localStorage.getItem(_GOLD_KEY)==='1'   || (typeof _isOwner==='function'?_isOwner():_isOwner_early()); }
+
+// On load: strip owner-granted keys if not earned through gameplay
+(function(){
+  if(localStorage.getItem(_SILVER_KEY)==='1' && localStorage.getItem(_SILVER_EARNED)!=='1')
+    localStorage.removeItem(_SILVER_KEY);
+  if(localStorage.getItem(_GOLD_KEY)==='1' && localStorage.getItem(_GOLD_EARNED)!=='1')
+    localStorage.removeItem(_GOLD_KEY);
+})();
 
 let _cubeSwatchIdx = parseInt(localStorage.getItem('cubix_swatch')||'9');
 if(isNaN(_cubeSwatchIdx)||_cubeSwatchIdx<0||_cubeSwatchIdx>9) _cubeSwatchIdx=9;
@@ -1823,16 +1940,16 @@ function _rebuildPremiumSlots(){
 // ══════════════════════════════
 
 const _CHECKPOINTS = {
-  0: [{x:200,platY:492},{x:1200,platY:375}],
-  1: [{x:150,platY:492},{x:1140,platY:318}],
-  2: [{x:150,platY:492},{x:1350,platY:318}],
-  3: [{x:150,platY:492},{x:1680,platY:298}],
-  4: [{x:1005,platY:420},{x:1840,platY:308}],
-  5: [{x:710,platY:378},{x:1820,platY:278}],
-  6: [{x:100,platY:468},{x:1950,platY:258}],
-  7: [{x:90,platY:468},{x:1860,platY:258}],
-  8: [{x:80,platY:468},{x:1940,platY:218}],
-  9: [{x:70,platY:468},{x:2080,platY:178}],
+  0: [{x:200,platY:443},{x:1200,platY:338}],
+  1: [{x:150,platY:443},{x:1140,platY:286}],
+  2: [{x:150,platY:443},{x:1350,platY:286}],
+  3: [{x:150,platY:443},{x:1680,platY:268}],
+  4: [{x:1005,platY:378},{x:1840,platY:277}],
+  5: [{x:710,platY:340},{x:1820,platY:250}],
+  6: [{x:100,platY:421},{x:1950,platY:232}],
+  7: [{x:90,platY:421},{x:1860,platY:232}],
+  8: [{x:80,platY:421},{x:1940,platY:196}],
+  9: [{x:70,platY:421},{x:2080,platY:160}],
 };
 
 function _initCheckpoints(){ _cpTouched=(_CHECKPOINTS[lvlIdx]||[]).map(()=>false); }
@@ -1945,7 +2062,7 @@ function _drwGoldCube(){
 //  4. MAIN MENU / RESUME
 // ══════════════════════════════
 
-let _gameStarted = localStorage.getItem('cubix_started')==='1';
+let _gameStarted = false; try{ _gameStarted = localStorage.getItem('cubix_started')==='1'; }catch(e){}
 
 function _saveResume(){
   localStorage.setItem('cubix_started','1');
@@ -1954,6 +2071,9 @@ function _saveResume(){
 }
 
 function _showMainMenu(){
+  // Don't show main menu if device picker hasn't been dismissed yet
+  const picker = document.getElementById('devicePicker');
+  if (picker && picker.style.display !== 'none') return;
   ['mainMenu','pauseMenu','lcMenu','goMenu','winMenu','wardrobeMenu'].forEach(m=>{
     const el=document.getElementById(m); if(el)el.classList.add('hidden');
   });
@@ -1977,23 +2097,25 @@ document.getElementById('bPlay').onclick=()=>{
   setTimeout(()=>{ lives=Math.max(lives,5); },30);
 };
 
-document.getElementById('bNext').onclick=function(){
+
+document.getElementById('bNext').onclick = null;
+const _bNext = document.getElementById('bNext');
+function _doNextLevel(){
   if(lvlIdx===6) _unlockSilver();
   if(lvlIdx===9) _unlockGold();
-  if(lvlIdx<LEVELS.length-1){
-    // Zoom out lcMenu, then start next level
-    showMenu(null); // triggers zoom-out of lcMenu
-    setTimeout(()=>{
-      lvlIdx++;_cpX=null;_cpY=null;_cpLvl=null;
-      initLvl(lvlIdx);_initCheckpoints();STATE='playing';
-    }, 300);
+  if(lvlIdx < LEVELS.length-1){
+    lvlIdx++; _cpX=null; _cpY=null; _cpLvl=null;
+    initLvl(lvlIdx); _initCheckpoints(); STATE='playing';
+    showMenu(null, true);
   } else {
-    if(score>hiScore){hiScore=score;localStorage.setItem('cubix_hi',hiScore);}
-    document.getElementById('wSc').textContent=score;
-    document.getElementById('wBe').textContent=hiScore;
+    if(score>hiScore){ hiScore=score; localStorage.setItem('cubix_hi',hiScore); }
+    document.getElementById('wSc').textContent = score;
+    document.getElementById('wBe').textContent = hiScore;
     _unlockGold(); STATE='win'; showMenu('winMenu');
   }
-};
+}
+_bNext.addEventListener('click', _doNextLevel);
+_bNext.addEventListener('touchend', function(e){ e.preventDefault(); _doNextLevel(); }, {passive:false});
 
 ['bQuit','bLCQ','bGOQ','bWM'].forEach(id=>{ document.getElementById(id).onclick=()=>{ STATE='menu'; _showMainMenu(); }; });
 document.getElementById('bWP').onclick=()=>startGame(0);
@@ -2023,12 +2145,14 @@ function _unlockBanner(msg,col){
 function _unlockSilver(){
   if(_isSilverUnlocked())return;
   localStorage.setItem(_SILVER_KEY,'1');
+  localStorage.setItem(_SILVER_EARNED,'1'); // earned through gameplay
   _rebuildPremiumSlots();
   _unlockBanner('SILVER SKIN UNLOCKED','#c0c0c0');
 }
 function _unlockGold(){
   if(_isGoldUnlocked())return;
   localStorage.setItem(_GOLD_KEY,'1');
+  localStorage.setItem(_GOLD_EARNED,'1'); // earned through gameplay
   _rebuildPremiumSlots();
   _unlockBanner('GOLDEN SKIN UNLOCKED','#ffd700');
 }
@@ -2049,7 +2173,8 @@ document.getElementById('bRe').addEventListener('click',()=>setTimeout(()=>{live
 //  SHIFT+I = immortal toggle (owner only)
 // ══════════════════════════════
 
-let _priv='none', _immortal=false, _flying=false;
+let _priv='none', _immortal=false;
+_priv_early = 'none';
 function _isAdmin(){ return _priv==='admin'||_priv==='owner'; }
 function _isOwner(){ return _priv==='owner'; }
 
@@ -2084,32 +2209,56 @@ function _isOwner(){ return _priv==='owner'; }
   const modal=document.createElement('div');modal.id='_redeemModal';modal.className='hidden';
   modal.innerHTML=`
     <div id="_redeemTitle">◈ REDEEM CODE ◈</div>
-    <input id="_redeemInput" type="text" placeholder="ENTER ACCESS CODE" autocomplete="off" spellcheck="false">
+    <input id="_redeemInput" type="text" placeholder="ENTER ACCESS CODE" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="characters" inputmode="text">
+    <button id="_redeemSubmit" style="font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;color:rgba(0,255,255,0.8);background:rgba(0,255,255,0.07);border:1px solid rgba(0,255,255,0.25);padding:8px 28px;cursor:pointer;margin-top:2px;">SUBMIT</button>
     <div id="_redeemMsg"></div>
     <button id="_redeemClose">✕ &nbsp;CLOSE</button>
   `;
   document.body.appendChild(modal);
 
-  btn.addEventListener('click',()=>{ modal.classList.remove('hidden'); document.getElementById('_redeemInput').value=''; document.getElementById('_redeemMsg').textContent=''; document.getElementById('_redeemInput').focus(); });
-  document.getElementById('_redeemClose').addEventListener('click',()=>modal.classList.add('hidden'));
-
-  document.getElementById('_redeemInput').addEventListener('keydown',e=>{
-    if(e.key!=='Enter')return;
-    const code=e.target.value.trim().toUpperCase();
+  function _tryCode(){
+    const code=document.getElementById('_redeemInput').value.trim().toUpperCase();
     const msg=document.getElementById('_redeemMsg');
     if(code==='TDVADMIN'){ _priv='admin'; _applyPriv(); msg.style.color='rgba(0,255,100,0.7)'; msg.textContent='✓ ADMIN ACCESS GRANTED'; setTimeout(()=>modal.classList.add('hidden'),1200); }
     else if(code==='TDVOWNER_2014'){ _priv='owner'; _applyPriv(); msg.style.color='rgba(255,200,0,0.7)'; msg.textContent='✓ OWNER ACCESS GRANTED'; setTimeout(()=>modal.classList.add('hidden'),1200); }
-    else if(code==='TDVNORMAL'){ _priv='none'; _immortal=false; _flying=false; _applyPriv(); msg.style.color='rgba(180,180,180,0.5)'; msg.textContent='✓ PRIVILEGES REMOVED'; setTimeout(()=>modal.classList.add('hidden'),1000); }
+    else if(code==='TDVNORMAL'){ _priv='none'; _immortal=false; _applyPriv(); msg.style.color='rgba(180,180,180,0.5)'; msg.textContent='✓ PRIVILEGES REMOVED'; setTimeout(()=>modal.classList.add('hidden'),1000); }
     else { msg.style.color='rgba(255,50,50,0.7)'; msg.textContent='✗ INVALID CODE'; }
-  });
+  }
+
+  btn.addEventListener('click',()=>{ modal.classList.remove('hidden'); document.getElementById('_redeemInput').value=''; document.getElementById('_redeemMsg').textContent=''; document.getElementById('_redeemInput').focus(); });
+  btn.addEventListener('touchend',e=>{ e.preventDefault(); modal.classList.remove('hidden'); document.getElementById('_redeemInput').value=''; document.getElementById('_redeemMsg').textContent=''; setTimeout(()=>document.getElementById('_redeemInput').focus(),100); });
+  document.getElementById('_redeemClose').addEventListener('click',()=>modal.classList.add('hidden'));
+  document.getElementById('_redeemClose').addEventListener('touchend',e=>{ e.preventDefault(); modal.classList.add('hidden'); });
+  document.getElementById('_redeemSubmit').addEventListener('click', _tryCode);
+  document.getElementById('_redeemSubmit').addEventListener('touchend',e=>{ e.preventDefault(); _tryCode(); });
+  document.getElementById('_redeemInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); _tryCode(); } });
 })();
 
-function _applyPriv(){
+function _applyPriv(){ _priv_early = _priv;
   const badge=document.getElementById('_privBadge');
-  if(_priv==='owner'){ badge.textContent='[ OWNER ]';badge.style.color='rgba(255,200,0,0.5)';badge.style.border='1px solid rgba(255,200,0,0.15)';badge.style.opacity='1'; }
-  else if(_priv==='admin'){ badge.textContent='[ ADMIN ]';badge.style.color='rgba(0,255,100,0.45)';badge.style.border='1px solid rgba(0,255,100,0.12)';badge.style.opacity='1'; }
-  else { badge.style.opacity='0'; _flying=false; _immortal=false; }
+  if(_priv==='owner'){
+    badge.textContent='[ OWNER ]';badge.style.color='rgba(255,200,0,0.5)';badge.style.border='1px solid rgba(255,200,0,0.15)';badge.style.opacity='1';
+    // Auto-unlock silver and gold for owner
+    localStorage.setItem(_SILVER_KEY,'1');
+    localStorage.setItem(_GOLD_KEY,'1');
+    _rebuildPremiumSlots();
+  } else if(_priv==='admin'){
+    badge.textContent='[ ADMIN ]';badge.style.color='rgba(0,255,100,0.45)';badge.style.border='1px solid rgba(0,255,100,0.12)';badge.style.opacity='1';
+  } else {
+    badge.style.opacity='0'; _immortal=false;
+    // Revert silver/gold to earned state only
+    if(!_isSilverEarned()) localStorage.removeItem(_SILVER_KEY);
+    if(!_isGoldEarned())   localStorage.removeItem(_GOLD_KEY);
+    // If currently using a locked skin, reset to default
+    if(_cubeSwatchIdx===10&&!_isSilverUnlocked()) _applyColor(9);
+    if(_cubeSwatchIdx===11&&!_isGoldUnlocked())   _applyColor(9);
+    _rebuildPremiumSlots();
+  }
 }
+// Separate keys for earned vs owner-granted
+// _SILVER_EARNED and _GOLD_EARNED moved earlier
+function _isSilverEarned(){ return localStorage.getItem(_SILVER_EARNED)==='1'; }
+function _isGoldEarned()  { return localStorage.getItem(_GOLD_EARNED)==='1'; }
 
 function _flashPriv(txt,col){
   const el=document.getElementById('_privFlash');
@@ -2117,10 +2266,9 @@ function _flashPriv(txt,col){
   clearTimeout(el._t); el._t=setTimeout(()=>{el.style.opacity='0';},1800);
 }
 
-// Keybinds — SHIFT+L admin+ | SHIFT+F, SHIFT+I owner only
+// Keybinds — SHIFT+L admin+ | Right Shift = fly (hold), I = immortal toggle (owner only)
 window.addEventListener('keydown',e=>{
   if(!_isAdmin())return;
-  // SHIFT+L = level warp (archived — functional but no UI prompt to keep it clean)
   if(e.shiftKey && e.code==='KeyL'){
     const n=parseInt(prompt('Warp to level (1-10):'));
     if(!isNaN(n)&&n>=1&&n<=10){
@@ -2133,14 +2281,11 @@ window.addEventListener('keydown',e=>{
     }
   }
   if(!_isOwner())return;
-  if(e.shiftKey && e.code==='KeyI'){
+  if(e.code==='KeyI'){
     _immortal=!_immortal;
     _flashPriv(_immortal?'★ IMMORTAL ON':'★ IMMORTAL OFF','rgba(255,200,0,0.7)');
   }
-  if(e.shiftKey && e.code==='KeyF'){
-    _flying=!_flying;
-    _flashPriv(_flying?'✦ FLY ON':'✦ FLY OFF','rgba(100,180,255,0.7)');
-  }
+
 });
 
 // ══════════════════════════════
@@ -2155,14 +2300,6 @@ setInterval(()=>{
 
   if(_immortal&&dying){ dying=false; P.dead=false; lives=Math.max(lives,1); }
 
-  if(_flying&&!P.dead){
-    const up=K['ArrowUp']||K['Space']||K['KeyW'];
-    const dn=K['ArrowDown']||K['KeyS'];
-    if(up)P.vy=-220; else if(dn)P.vy=220;
-    else if(Math.abs(P.vy)>20)P.vy*=0.75;
-    P.onGnd=false;
-  }
-
   if(!P.dead&&P.vy>0) P.vy*=0.96;
 
   if(_usingSilver&&!P.dead) _drwSilverCube();
@@ -2175,6 +2312,7 @@ window.addEventListener('keydown',e=>{
     setTimeout(()=>{if(P&&P.vy<0&&P.vy>-700)P.vy*=1.2;},20);
   }
 });
+
 
 // ══════════════════════════════
 //  9. BOOT
@@ -2193,7 +2331,8 @@ window.addEventListener('keydown',e=>{
   else _applyColor(Math.min(saved,9));
 
   _rebuildPremiumSlots();
-  _showMainMenu();
+  // DO NOT call _showMainMenu() here — initDevicePicker() handles showing the menu
+  // after the device is chosen
   _renderWardrobePreview();
 })();
 
@@ -2360,316 +2499,336 @@ document.getElementById('bSwitchDevice').addEventListener('click', () => {
 (function() {
   'use strict';
 
-  // ── Touch/click handlers for move + jump ──
-  const BTN_MAP = {
-    btnLeft:  ['ArrowLeft'],
-    btnRight: ['ArrowRight'],
-    btnJump:  ['Space', 'ArrowUp'],
-  };
-
-  const _activeTouches = {};
-
-  function pressBtn(id) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.add('pressed');
-    const codes = BTN_MAP[id];
-    if (!codes) return;
-    codes.forEach(code => {
-      if (!K[code]) JP[code] = true;
-      K[code] = true;
-    });
-  }
-
-  function releaseBtn(id) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.remove('pressed');
-    const codes = BTN_MAP[id];
-    if (!codes) return;
-    codes.forEach(code => { K[code] = false; });
-  }
-
-  ['btnLeft', 'btnRight', 'btnJump'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    el.addEventListener('touchstart', e => {
-      e.preventDefault();
-      Array.from(e.changedTouches).forEach(t => {
-        if (!_activeTouches[id]) _activeTouches[id] = new Set();
-        _activeTouches[id].add(t.identifier);
-      });
-      pressBtn(id);
-    }, { passive: false });
-
-    el.addEventListener('touchend', e => {
-      e.preventDefault();
-      Array.from(e.changedTouches).forEach(t => {
-        if (_activeTouches[id]) _activeTouches[id].delete(t.identifier);
-      });
-      if (!_activeTouches[id] || _activeTouches[id].size === 0) releaseBtn(id);
-    }, { passive: false });
-
-    el.addEventListener('touchcancel', e => {
-      e.preventDefault();
-      if (_activeTouches[id]) _activeTouches[id].clear();
-      releaseBtn(id);
-    }, { passive: false });
-
-    // Mouse fallback for desktop testing
-    el.addEventListener('mousedown', e => { e.preventDefault(); pressBtn(id); });
-    window.addEventListener('mouseup', () => releaseBtn(id));
-  });
-
-  // ── FLY BUTTON — hold to fly up, tap to toggle fly mode ──
-  const flyBtn = document.getElementById('btnFly');
-  if (flyBtn) {
-    let _flyHeld = false;
-
-    const _flyStart = e => {
-      e.preventDefault();
-      _flyHeld = true;
-      flyBtn.classList.add('pressed');
-      // If fly mode active → push up
-      if (typeof _flying !== 'undefined' && _flying) {
-        K['ArrowUp'] = true; JP['ArrowUp'] = true;
-      } else {
-        // Toggle fly mode on tap
-        window.dispatchEvent(new KeyboardEvent('keydown', { code:'KeyF', shiftKey:true, bubbles:true }));
-        setTimeout(() => {
-          if (typeof _flying !== 'undefined' && _flying) {
-            K['ArrowUp'] = true; JP['ArrowUp'] = true;
-            flyBtn.classList.add('fly-active');
-          } else {
-            flyBtn.classList.remove('fly-active');
-          }
-        }, 40);
-      }
-    };
-
-    const _flyEnd = e => {
-      if(e) e.preventDefault();
-      _flyHeld = false;
-      flyBtn.classList.remove('pressed');
-      K['ArrowUp'] = false;
-    };
-
-    flyBtn.addEventListener('touchstart', _flyStart, { passive: false });
-    flyBtn.addEventListener('touchend',   _flyEnd,   { passive: false });
-    flyBtn.addEventListener('touchcancel',_flyEnd,   { passive: false });
-    flyBtn.addEventListener('mousedown',  _flyStart);
-    window.addEventListener('mouseup',    _flyEnd);
-  }
-
-  // ── IMMORTAL BUTTON — tap to toggle ──
-  const immBtn = document.getElementById('btnImmort');
-  if (immBtn) {
-    const _immToggle = e => {
-      e.preventDefault();
-      immBtn.classList.add('pressed');
-      setTimeout(() => immBtn.classList.remove('pressed'), 160);
-      window.dispatchEvent(new KeyboardEvent('keydown', { code:'KeyI', shiftKey:true, bubbles:true }));
-      setTimeout(() => {
-        if (typeof _immortal !== 'undefined' && _immortal) {
-          immBtn.classList.add('immort-active');
-        } else {
-          immBtn.classList.remove('immort-active');
-        }
-      }, 50);
-    };
-    immBtn.addEventListener('touchstart', _immToggle, { passive: false });
-    immBtn.addEventListener('mousedown',  _immToggle);
-  }
-
-  // ── Sync owner-only button visibility & states ──
-  setInterval(() => {
-    const isOwner = (typeof _priv !== 'undefined' && _priv === 'owner');
-    const flyEl  = document.getElementById('btnFly');
-    const immEl  = document.getElementById('btnImmort');
-
-    if (flyEl) {
-      flyEl.classList.toggle('owner-visible', isOwner);
-      flyEl.classList.toggle('fly-active', isOwner && typeof _flying !== 'undefined' && _flying);
-    }
-    if (immEl) {
-      immEl.classList.toggle('owner-visible', isOwner);
-      immEl.classList.toggle('immort-active', isOwner && typeof _immortal !== 'undefined' && _immortal);
-    }
-  }, 350);
-
-  // ── Dim controls when not playing ──
-  setInterval(() => {
-    const ctrl = document.getElementById('mobileControls');
-    if (!ctrl) return;
-    const inPlay = (typeof STATE !== 'undefined' && STATE === 'playing');
-    ctrl.style.opacity     = inPlay ? '1' : '0.1';
-    ctrl.style.pointerEvents = inPlay ? '' : 'none';
-  }, 200);
-
-  // ── Unlock audio on first touch ──
-  document.addEventListener('touchstart', () => {
-    try { AC(); } catch(e) {}
-  }, { once: true });
-
-  // ── Allow scroll on menus, block during play to prevent accidental scroll ──
-  document.addEventListener('touchmove', e => {
-    if (typeof STATE !== 'undefined' && STATE === 'playing') e.preventDefault();
-  }, { passive: false });
-
-
-  // ══════════════════════════════════════════
-  // DEVICE PICKER — phone vs tablet
-  // ══════════════════════════════════════════
-  let _deviceType = localStorage.getItem('cubix_device') || null;
-  window._deviceType  = _deviceType;
-  window._deviceCtrlH = (_deviceType === 'tablet') ? 150 : 95;
-
-  // Genuinely different sizes — phone is compact, tablet is large
+  // ═══════════════════════════════════
+  // DEVICE SIZES
+  // ═══════════════════════════════════
   const DEVICE_SIZES = {
-    phone: {
-      left:68, jump:76, fly:54, immort:62,
-      ctrlH:110, ctrlBottom:14, gap:10,
-    },
-    tablet: {
-      left:100, jump:116, fly:82, immort:94,
-      ctrlH:150, ctrlBottom:28, gap:18,
-    },
+    phone:  { left:75, jump:84, fly:59, immort:68, dj:72, blast:66, ctrlH:90, ctrlBottom:10, gap:10 },
+    tablet: { left:110, jump:128, fly:90, immort:103, dj:110, blast:100, ctrlH:150, ctrlBottom:28, gap:18 },
   };
 
-  // scaleGame defined FIRST so applyDeviceLayout can call it
+  window._deviceType  = localStorage.getItem('cubix_device') || null;
+  window._deviceCtrlH = 110;
+
+  // ═══════════════════════════════════
+  // SCALE GAME
+  // ═══════════════════════════════════
   function scaleGame() {
     const gc = document.getElementById('gameContainer');
     const gw = document.getElementById('gameWrapper');
-    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
-    // DESKTOP — clear inline styles
-    if (!isTouch) { gc.style.cssText = ''; gw.style.cssText = ''; return; }
-
-    const GW = 900, GH = 540;
-    const vp   = window.visualViewport;
-    const vw   = vp ? vp.width  : window.innerWidth;
-    const vh   = vp ? vp.height : window.innerHeight;
-
-    // Read ACTUAL rendered bar height (after CSS paint)
-    const bar  = document.getElementById('mobileControls');
-    const barH = (bar && bar.offsetHeight > 10) ? bar.offsetHeight : (window._deviceCtrlH || 95);
-    const availH = Math.max(80, vh - barH);
-
     const dtype = window._deviceType;
-    let scale;
 
-    if (dtype === 'phone') {
-      // PHONE: fill full width — game as big as possible on narrow screen
-      const sw = vw / GW;
-      const sh = availH / GH;
-      scale = (sw <= sh) ? sw : Math.min(sw, sh);
-    } else {
-      // TABLET: fit with padding — centered, breathable layout
-      const PAD = 20;
-      scale = Math.min((vw - PAD*2) / GW, (availH - PAD) / GH);
+    if (!dtype || dtype === 'laptop') {
+      gc.style.cssText = '';
+      gw.style.cssText = '';
+      return;
     }
 
-    const scaledW = GW * scale;
-    const scaledH = GH * scale;
-    const left    = Math.max(0, (vw - scaledW) / 2);
-    const top     = Math.max(0, (availH - scaledH) / 2);
+    const GW = 900, GH = 540;
+    const vp  = window.visualViewport;
+    const vw  = vp ? vp.width  : window.innerWidth;
+    const vh  = vp ? vp.height : window.innerHeight;
 
-    gw.style.cssText = `position:fixed;top:0;left:0;width:${vw}px;height:${availH}px;overflow:hidden;display:block;background:#000;`;
-    gc.style.cssText = `position:absolute;width:900px;height:540px;top:0;left:0;transform-origin:0 0;transform:translate(${left}px,${top}px) scale(${scale});overflow:hidden;box-shadow:0 0 0 1px rgba(0,255,255,0.18),0 0 40px rgba(0,255,255,0.12),0 0 100px rgba(0,255,255,0.06),inset 0 0 80px rgba(0,0,0,0.6);`;
+    let scale, left, top;
+
+    if (dtype === 'phone') {
+      // Fill the FULL screen — controls float ON TOP (like every real mobile game)
+      scale = Math.min(vw / GW, vh / GH);
+      left  = Math.round((vw - GW * scale) / 2);
+      top   = Math.round((vh - GH * scale) / 2);
+    } else {
+      const barH = window._deviceCtrlH || 150;
+      const availH = Math.max(80, vh - barH);
+      scale = Math.min((vw - 20) / GW, (availH - 10) / GH);
+      left  = Math.round((vw - GW * scale) / 2);
+      top   = Math.round((availH - GH * scale) / 2);
+    }
+
+    gw.style.cssText = `position:fixed;top:0;left:0;width:${vw}px;height:${vh}px;overflow:hidden;display:block;background:#000;`;
+    gc.style.cssText = `position:absolute;width:900px;height:540px;top:0;left:0;transform-origin:0 0;transform:translate(${left}px,${top}px) scale(${scale});overflow:hidden;`;
+
+    gw.style.cssText = `position:fixed;top:0;left:0;width:${vw}px;height:${vh}px;overflow:hidden;display:block;background:#000;`;
+    gc.style.cssText = `position:absolute;width:900px;height:540px;top:0;left:0;transform-origin:0 0;transform:translate(${left}px,${top}px) scale(${scale});overflow:hidden;`;
+
+    gw.style.cssText = `position:fixed;top:0;left:0;width:${vw}px;height:${vh}px;overflow:hidden;display:block;background:#000;`;
+    gc.style.cssText = `position:absolute;width:900px;height:540px;top:0;left:0;transform-origin:0 0;transform:translate(${left}px,${top}px) scale(${scale});overflow:hidden;`;
   }
   window.scaleGame = scaleGame;
 
-  // applyDeviceLayout: set CSS vars directly on :root — no specificity fights
+  // ═══════════════════════════════════
+  // APPLY DEVICE LAYOUT
+  // ═══════════════════════════════════
   function applyDeviceLayout(type) {
-    _deviceType = type;
     window._deviceType  = type;
-    window._deviceCtrlH = DEVICE_SIZES[type].ctrlH;
-    localStorage.setItem('cubix_device', type);
-    const s = DEVICE_SIZES[type];
+    window._deviceCtrlH = (DEVICE_SIZES[type] || {}).ctrlH || 110;
 
-    // Set CSS variables directly on documentElement — always takes effect immediately
+    if (type === 'laptop') {
+      document.getElementById('mobileControls').style.display = 'none';
+      scaleGame();
+      return;
+    }
+
+    const s = DEVICE_SIZES[type];
+    if (!s) return;
+
     const root = document.documentElement;
     root.style.setProperty('--btn-lr',     s.left   + 'px');
     root.style.setProperty('--btn-jump',   s.jump   + 'px');
     root.style.setProperty('--btn-fly',    s.fly    + 'px');
     root.style.setProperty('--btn-imm',    s.immort + 'px');
+    root.style.setProperty('--btn-dj',     (s.dj    || s.immort) + 'px');
+    root.style.setProperty('--btn-blast',  (s.blast || s.fly)    + 'px');
     root.style.setProperty('--ctrl-bar-h', s.ctrlH  + 'px');
 
-    // Set ctrl-zone bottom + gaps directly on elements
     document.querySelectorAll('.ctrl-zone').forEach(z => z.style.bottom = s.ctrlBottom + 'px');
     const cl = document.getElementById('ctrlLeft');
     const cr = document.getElementById('ctrlRight');
     if (cl) cl.style.gap = s.gap + 'px';
-    if (cr) cr.style.gap = Math.round(s.gap * 0.55) + 'px';
+    if (cr) cr.style.gap = Math.round(s.gap * 0.6) + 'px';
 
-    // Double rAF ensures layout is painted before we measure/scale
     requestAnimationFrame(() => requestAnimationFrame(scaleGame));
   }
   window.applyDeviceLayout = applyDeviceLayout;
 
-  function showDevicePicker() {
-    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-    if (!isTouch) return;
-    const saved = localStorage.getItem('cubix_device');
-    if (saved) { applyDeviceLayout(saved); return; }
+  // ═══════════════════════════════════
+  // PORTRAIT WATCH (phone only)
+  // ═══════════════════════════════════
+  function _checkPortrait() {
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const pb = document.getElementById('portraitBlock');
+    if (pb) pb.style.display = isPortrait ? 'flex' : 'none';
+    if (!isPortrait) scaleGame();
+  }
+
+  function tryLockLandscape() {
+    try {
+      if (screen.orientation && screen.orientation.lock)
+        screen.orientation.lock('landscape').catch(()=>{});
+    } catch(e) {}
+  }
+
+  // ═══════════════════════════════════
+  // AFTER DEVICE CHOSEN
+  // ═══════════════════════════════════
+  function _afterDeviceChosen(type) {
+    const picker = document.getElementById('devicePicker');
+    const pb     = document.getElementById('portraitBlock');
+    if (picker) picker.style.display = 'none';
+    if (pb)     pb.style.display     = 'none';
+
+    applyDeviceLayout(type);
+
+    if (type === 'phone') {
+      tryLockLandscape();
+      _checkPortrait();
+      window.addEventListener('resize',            _checkPortrait);
+      window.addEventListener('orientationchange', () => setTimeout(_checkPortrait, 200));
+    }
+
+    if (typeof showMenu === 'function') showMenu('mainMenu');
+  }
+
+  // ═══════════════════════════════════
+  // INIT — always show picker first
+  // ═══════════════════════════════════
+  function initDevicePicker() {
+    // ALWAYS show picker — no exceptions, no saved-state skipping
     const picker = document.getElementById('devicePicker');
     if (picker) picker.style.display = 'flex';
   }
 
-  // Try to lock orientation to landscape — must be called inside a user gesture
-  function tryLockLandscape() {
-    try {
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch(() => {});
-      } else if (screen.lockOrientation) {
-        screen.lockOrientation('landscape');
-      } else if (screen.mozLockOrientation) {
-        screen.mozLockOrientation('landscape');
-      } else if (screen.msLockOrientation) {
-        screen.msLockOrientation('landscape');
+  function _pick(type) {
+    localStorage.setItem('cubix_device', type);
+    sessionStorage.setItem('cubix_chosen', '1');
+    _afterDeviceChosen(type);
+  }
+
+  const bPhone  = document.getElementById('bDevPhone');
+  const bIpad   = document.getElementById('bDevIpad');
+  const bLaptop = document.getElementById('bDevLaptop');
+  if (bPhone)  bPhone.addEventListener('click',  () => _pick('phone'));
+  if (bIpad)   bIpad.addEventListener('click',   () => _pick('tablet'));
+  if (bLaptop) bLaptop.addEventListener('click', () => _pick('laptop'));
+
+  initDevicePicker();
+
+  // Re-scale on resize
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', scaleGame);
+  }
+  window.addEventListener('resize', scaleGame);
+  window.addEventListener('orientationchange', () => {
+    setTimeout(scaleGame, 100);
+    setTimeout(scaleGame, 400);
+  });
+
+  // ═══════════════════════════════════
+  // TOUCH CONTROLS
+  // ═══════════════════════════════════
+  const BTN_MAP = {
+    btnLeft:  ['ArrowLeft'],
+    btnRight: ['ArrowRight'],
+    btnJump:  ['Space'],
+  };
+
+  // Direct K/JP manipulation — reliable on all mobile browsers
+  function _press(key) {
+    if (typeof K !== 'undefined') K[key] = true;
+    if (typeof JP !== 'undefined') JP[key] = true;
+    // Also dispatch on document for any other listeners
+    document.dispatchEvent(new KeyboardEvent('keydown', { code: key, bubbles: true }));
+  }
+  function _release(key) {
+    if (typeof K !== 'undefined') K[key] = false;
+    document.dispatchEvent(new KeyboardEvent('keyup', { code: key, bubbles: true }));
+  }
+
+  Object.entries(BTN_MAP).forEach(([btnId, keys]) => {
+    const el = document.getElementById(btnId);
+    if (!el) return;
+    el.addEventListener('touchstart', e => { e.preventDefault(); keys.forEach(_press); el.classList.add('pressed'); }, { passive: false });
+    el.addEventListener('touchend',   e => { e.preventDefault(); keys.forEach(k => { if(typeof K!=='undefined') K[k]=false; }); keys.forEach(_release); el.classList.remove('pressed'); }, { passive: false });
+    el.addEventListener('touchcancel',e => { keys.forEach(k => { if(typeof K!=='undefined') K[k]=false; }); keys.forEach(_release); el.classList.remove('pressed'); });
+  });
+
+
+
+  // Blast jump button — all players
+  const blastBtn = document.getElementById('btnBlast');
+  if(blastBtn){
+    blastBtn.addEventListener('touchstart', e=>{ e.preventDefault(); blastBtn.classList.add('pressed'); if(typeof K!=='undefined'){ K['KeyS']=true; } }, {passive:false});
+    blastBtn.addEventListener('touchend',   e=>{ e.preventDefault(); blastBtn.classList.remove('pressed'); if(typeof K!=='undefined'){ K['KeyS']=false; } }, {passive:false});
+    blastBtn.addEventListener('touchcancel',()=>{ blastBtn.classList.remove('pressed'); if(typeof K!=='undefined') K['KeyS']=false; });
+  }
+
+  const immBtn = document.getElementById('btnImmort');
+  if (immBtn) {
+    immBtn.addEventListener('touchstart', e => {
+      e.preventDefault(); immBtn.classList.add('pressed');
+    }, { passive: false });
+    immBtn.addEventListener('touchend', e => {
+      e.preventDefault(); immBtn.classList.remove('pressed');
+      if(typeof _isOwner==='function' && _isOwner()){
+        _immortal=!_immortal;
+        _flashPriv(_immortal?'★ IMMORTAL ON':'★ IMMORTAL OFF','rgba(255,200,0,0.7)');
       }
+    }, { passive: false });
+  }
+
+  // ── Dim controls when not playing ──
+  setInterval(() => {
+    const ctrl = document.getElementById('mobileControls');
+    if (!ctrl) return;
+    const dtype = window._deviceType;
+    if (!dtype || dtype === 'laptop') { ctrl.style.display = 'none'; return; }
+    ctrl.style.display      = 'flex';
+    const inPlay = (typeof STATE !== 'undefined' && STATE === 'playing');
+    ctrl.style.opacity      = inPlay ? '1' : '0.15';
+    ctrl.style.pointerEvents = inPlay ? '' : 'none';
+  }, 200);
+
+  // ── Level badge ──
+  setInterval(() => {
+    const badge = document.getElementById('_lvlBadge');
+    if (!badge) return;
+    const playing = typeof STATE !== 'undefined' && STATE === 'playing';
+    badge.textContent = playing ? 'LVL '+(lvlIdx+1)+'  /  '+(LEVELS[lvlIdx]?LEVELS[lvlIdx].name:'') : '';
+    badge.style.opacity = playing ? '1' : '0';
+  }, 200);
+
+  // ── Pause button ──
+  setTimeout(() => {
+    const pb = document.getElementById('_pauseBtn');
+    if (!pb) return;
+    function doPause(e) {
+      e.preventDefault(); e.stopPropagation();
+      if (typeof STATE === 'undefined') return;
+      if (STATE === 'playing') { STATE = 'paused';  showMenu('pauseMenu'); }
+      else if (STATE === 'paused') { STATE = 'playing'; showMenu(null, true); }
+    }
+    pb.addEventListener('touchstart', doPause, { passive: false });
+    pb.addEventListener('click', doPause);
+  }, 0);
+
+  setInterval(() => {
+    const pb = document.getElementById('_pauseBtn');
+    if (!pb) return;
+    const playing = typeof STATE !== 'undefined' && STATE === 'playing';
+    const paused  = typeof STATE !== 'undefined' && STATE === 'paused';
+    pb.style.display = (playing || paused) ? 'flex' : 'none';
+    pb.textContent = paused ? '▶' : '⏸';
+  }, 200);
+
+  // ── iOS Audio unlock ──
+  function _unlockAudio() {
+    try {
+      const a = AC();
+      if (a.state === 'suspended') a.resume();
+      const buf = a.createBuffer(1,1,22050);
+      const src = a.createBufferSource();
+      src.buffer = buf; src.connect(a.destination); src.start(0);
     } catch(e) {}
   }
+  document.addEventListener('touchstart', _unlockAudio, { passive: true });
 
-  const bPhone = document.getElementById('bDevPhone');
-  const bIpad  = document.getElementById('bDevIpad');
-  if (bPhone) bPhone.addEventListener('click', () => {
-    document.getElementById('devicePicker').style.display = 'none';
-    tryLockLandscape();
-    applyDeviceLayout('phone');
-    setTimeout(checkPortrait, 200); // show rotate screen if still portrait after lock attempt
+  // ── Mobile sound effects ──
+  function _mTone(freq, type, dur, vol, delay) {
+    setTimeout(() => {
+      try {
+        const a=AC(), o=a.createOscillator(), g=a.createGain();
+        o.connect(g); g.connect(a.destination);
+        o.type=type; o.frequency.value=freq;
+        g.gain.setValueAtTime(0, a.currentTime);
+        g.gain.linearRampToValueAtTime(vol, a.currentTime+0.012);
+        g.gain.exponentialRampToValueAtTime(0.001, a.currentTime+dur);
+        o.start(); o.stop(a.currentTime+dur+0.05);
+      } catch(e) {}
+    }, delay || 0);
+  }
+  function _sfxTap()        { _mTone(900,'sine',0.04,0.10); }
+  function _sfxConfirm()    { _mTone(440,'sine',0.12,0.12); _mTone(660,'sine',0.16,0.13,80); _mTone(880,'sine',0.18,0.11,160); }
+  function _sfxLevelClear() { [523,659,784,1047].forEach((f,i)=>_mTone(f,'sine',0.22,0.13,i*90)); }
+  function _sfxGameOver()   { _mTone(440,'sawtooth',0.3,0.15); _mTone(280,'sawtooth',0.4,0.15,200); }
+  function _sfxPause()      { _mTone(600,'sine',0.10,0.09); _mTone(400,'sine',0.14,0.09,80); }
+
+  ['btnLeft','btnRight','btnJump','btnFly','btnImmort',
+   'bPlay','bResume','bResume2','bNext','bWP','bWardrobe','bSwitchDevice','bReboot'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('touchstart', _sfxTap, { passive: true });
   });
-  if (bIpad) bIpad.addEventListener('click', () => {
-    document.getElementById('devicePicker').style.display = 'none';
-    // iPad already in landscape — no lock needed
-    applyDeviceLayout('tablet');
+  ['bDevPhone','bDevIpad','bDevLaptop'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('click', _sfxConfirm);
   });
 
-  // If returning user already chose phone, try lock on first touch
-  if (localStorage.getItem('cubix_device') === 'phone') {
-    document.addEventListener('touchstart', function _firstTouch() {
-      tryLockLandscape();
-      document.removeEventListener('touchstart', _firstTouch);
-    }, { once: true });
+  setInterval(() => {
+    if (typeof STATE === 'undefined') return;
+    if (STATE === 'levelcomplete' && !window._lcPlayed) { window._lcPlayed=true; _sfxLevelClear(); }
+    else if (STATE !== 'levelcomplete') window._lcPlayed = false;
+    if (STATE === 'gameover' && !window._goPlayed) { window._goPlayed=true; _sfxGameOver(); }
+    else if (STATE !== 'gameover') window._goPlayed = false;
+    if (STATE === 'paused' && !window._pPlayed) { window._pPlayed=true; _sfxPause(); }
+    else if (STATE !== 'paused') window._pPlayed = false;
+  }, 150);
+
+  // ── lvl switcher ──
+  const lvlBtn = document.getElementById('_lvlSwitchBtn');
+  if (lvlBtn) {
+    lvlBtn.addEventListener('click', () => {
+      if (typeof lvlIdx === 'undefined') return;
+      lvlIdx = (lvlIdx + 1) % (typeof LEVELS !== 'undefined' ? LEVELS.length : 10);
+      if (typeof initLvl === 'function') { initLvl(lvlIdx); if(typeof _initCheckpoints==='function') _initCheckpoints(); }
+    });
   }
 
-  // Portrait blocker — only for phone users, only in portrait
-  function checkPortrait() {
-    const isPhone = localStorage.getItem('cubix_device') === 'phone';
-    const isPortrait = window.innerHeight > window.innerWidth;
-    const pb = document.getElementById('portraitBlock');
-    if (pb) pb.style.display = (isPhone && isPortrait) ? 'flex' : 'none';
-  }
-  window.addEventListener('resize', checkPortrait);
-  window.addEventListener('orientationchange', () => setTimeout(checkPortrait, 150));
-  checkPortrait();
-
-  showDevicePicker();
+  // ── Allow scroll on menus only ──
+  document.addEventListener('touchmove', e => {
+    if (typeof STATE !== 'undefined' && STATE === 'playing') e.preventDefault();
+  }, { passive: false });
 
 
 
-  // Read iOS safe-area-inset-bottom via a probe element
+  // safe-area probe
   (function() {
     const probe = document.createElement('div');
     probe.style.cssText = 'position:fixed;bottom:0;height:env(safe-area-inset-bottom,0px);pointer-events:none;';
@@ -2678,45 +2837,6 @@ document.getElementById('bSwitchDevice').addEventListener('click', () => {
     document.documentElement.style.setProperty('--sab', sab + 'px');
     document.body.removeChild(probe);
   })();
-
-  scaleGame();
-
-  // Re-scale on resize AND when iOS visual viewport changes (keyboard, browser chrome)
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', scaleGame);
-    window.visualViewport.addEventListener('scroll', scaleGame);
-  }
-  window.addEventListener('resize', scaleGame);
-  window.addEventListener('orientationchange', () => {
-    setTimeout(scaleGame, 100);
-    setTimeout(scaleGame, 400); // double-fire — iOS fires orientationchange before resize completes
-  });
-
-  // ── Mobile level switcher button ──
-  const lvlBtn = document.getElementById('_lvlSwitchBtn');
-  if (lvlBtn) {
-    lvlBtn.addEventListener('click', () => {
-      if (typeof _isAdmin === 'undefined' || !_isAdmin()) return;
-      const n = parseInt(prompt('Warp to level (1-10):'));
-      if (!isNaN(n) && n >= 1 && n <= 10) {
-        if (typeof _cpX !== 'undefined') { _cpX=null; _cpY=null; _cpLvl=null; }
-        lvlIdx = n - 1;
-        score=0; lives=5; combo=1; comboT=0; dying=false;
-        initLvl(lvlIdx);
-        if (typeof _initCheckpoints !== 'undefined') _initCheckpoints();
-        STATE = 'playing';
-        ['mainMenu','pauseMenu','lcMenu','goMenu','winMenu','wardrobeMenu'].forEach(id => {
-          const el = document.getElementById(id); if (el) el.classList.add('hidden');
-        });
-        try { startAmbient(); } catch(e) {}
-      }
-    });
-    // Show/hide based on privilege
-    setInterval(() => {
-      const isAdm = (typeof _isAdmin !== 'undefined' && _isAdmin());
-      lvlBtn.style.display = (isAdm && typeof STATE !== 'undefined' && STATE === 'playing') ? 'block' : 'none';
-    }, 400);
-  }
 
 })();
 </script>
