@@ -453,7 +453,7 @@ canvas { display: block; }
 }
 
 #ctrlLeft  { left: 12px;  flex-direction: row;    gap: 14px; padding: 6px 10px; }
-#ctrlRight { right: 0px; flex-direction: column; gap: 8px;  bottom: 28px; padding: 6px 10px; }
+#ctrlRight { right: 12px; flex-direction: column; gap: 8px;  bottom: 28px; padding: 6px 10px; }
 
 .ctrl-btn {
   border-radius: 50%;
@@ -2537,9 +2537,10 @@ document.getElementById('bSwitchDevice').addEventListener('click', () => {
       left  = Math.round((vw - GW * scale) / 2);
       top   = Math.round((vh - GH * scale) / 2);
     } else {
+      // Tablet: controls sit at bottom, game fills remaining space centered
       const barH = window._deviceCtrlH || 150;
       const availH = Math.max(80, vh - barH);
-      scale = Math.min((vw - 20) / GW, (availH - 10) / GH);
+      scale = Math.min(vw / GW, availH / GH);
       left  = Math.round((vw - GW * scale) / 2);
       top   = Math.round((availH - GH * scale) / 2);
     }
