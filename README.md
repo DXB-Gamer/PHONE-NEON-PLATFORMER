@@ -453,7 +453,7 @@ canvas { display: block; }
 }
 
 #ctrlLeft  { left: 12px;  flex-direction: row;    gap: 14px; padding: 6px 10px; }
-#ctrlRight { right: 12px; flex-direction: column; gap: 8px;  bottom: 28px; padding: 6px 10px; }
+#ctrlRight { right: 0px; flex-direction: column; gap: 8px;  bottom: 28px; padding: 6px 10px; }
 
 .ctrl-btn {
   border-radius: 50%;
