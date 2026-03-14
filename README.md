@@ -768,6 +768,7 @@ canvas { display: block; }
 </div>
 
 <div id="gameWrapper">
+<button id="_pauseBtn" style="position:fixed;top:12px;left:12px;z-index:999;width:48px;height:48px;border-radius:10px;border:2px solid rgba(0,255,255,0.5);background:rgba(0,0,0,0.75);color:rgba(0,255,255,1);font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation;box-shadow:0 0 12px rgba(0,255,255,0.3);">⏸</button>
 <div id="gameContainer">
   <canvas id="gameCanvas" width="900" height="540"></canvas>
   <canvas id="scanlineCanvas" width="900" height="540"></canvas>
@@ -776,7 +777,6 @@ canvas { display: block; }
   <div id="cpIndicator">✦ CHECKPOINT SAVED ✦</div>
   <div id="_lvlBadge"></div>
   <!-- Pause button — sits top-right of canvas, visible during play -->
-  <button id="_pauseBtn" style="position:absolute;top:8px;left:8px;z-index:20;width:38px;height:38px;border-radius:8px;border:2px solid rgba(0,255,255,0.5);background:rgba(0,0,0,0.65);color:rgba(0,255,255,1);font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:none;box-shadow:0 0 10px rgba(0,255,255,0.3);">⏸</button>
   <!-- Mobile level switcher — visible to admin/owner only -->
   <button id="_lvlSwitchBtn" style="display:none;position:absolute;top:6px;left:8px;z-index:20;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(0,255,100,0.7);background:rgba(0,0,0,0.6);border:1px solid rgba(0,255,100,0.25);padding:4px 8px;cursor:pointer;">LVL ▲</button>
 
@@ -2113,6 +2113,7 @@ function _doNextLevel(){
     document.getElementById('wBe').textContent = hiScore;
     _unlockGold(); STATE='win'; showMenu('winMenu');
   }
+  if(typeof window.scaleGame==='function') requestAnimationFrame(window.scaleGame);
 }
 _bNext.addEventListener('click', _doNextLevel);
 _bNext.addEventListener('touchend', function(e){ e.preventDefault(); _doNextLevel(); }, {passive:false});
@@ -2431,18 +2432,7 @@ setInterval(()=>{
   if(pb){ pb.style.display=(typeof STATE!=='undefined'&&STATE==='playing')?'flex':'none'; }
 },200);
 
-// Wire pause button — deferred so DOM is guaranteed ready
-setTimeout(()=>{
-  const pb=document.getElementById('_pauseBtn');
-  if(!pb) return;
-  function doPause(e){ e.preventDefault(); e.stopPropagation();
-    if(typeof STATE==='undefined') return;
-    if(STATE==='playing'){ STATE='paused'; showMenu('pauseMenu'); pb.textContent='⏸'; }
-    else if(STATE==='paused'){ STATE='playing'; showMenu(null,true); pb.textContent='⏸'; }
-  }
-  pb.addEventListener('touchstart', doPause, {passive:false});
-  pb.addEventListener('click', doPause);
-},0);
+// Wire pause button handled in mobile script
 
 // ══════════════════════════════════════════
 // CONFIRM DIALOG ENGINE
@@ -2525,31 +2515,23 @@ document.getElementById('bSwitchDevice').addEventListener('click', () => {
     }
 
     const GW = 900, GH = 540;
-    const vp  = window.visualViewport;
-    const vw  = vp ? vp.width  : window.innerWidth;
-    const vh  = vp ? vp.height : window.innerHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
     let scale, left, top;
 
     if (dtype === 'phone') {
-      // Fill the FULL screen — controls float ON TOP (like every real mobile game)
       scale = Math.min(vw / GW, vh / GH);
       left  = Math.round((vw - GW * scale) / 2);
       top   = Math.round((vh - GH * scale) / 2);
     } else {
-      // Tablet: controls sit at bottom, game fills remaining space centered
+      // Tablet: reserve space at bottom for controls
       const barH = window._deviceCtrlH || 150;
       const availH = Math.max(80, vh - barH);
       scale = Math.min(vw / GW, availH / GH);
       left  = Math.round((vw - GW * scale) / 2);
       top   = Math.round((availH - GH * scale) / 2);
     }
-
-    gw.style.cssText = `position:fixed;top:0;left:0;width:${vw}px;height:${vh}px;overflow:hidden;display:block;background:#000;`;
-    gc.style.cssText = `position:absolute;width:900px;height:540px;top:0;left:0;transform-origin:0 0;transform:translate(${left}px,${top}px) scale(${scale});overflow:hidden;`;
-
-    gw.style.cssText = `position:fixed;top:0;left:0;width:${vw}px;height:${vh}px;overflow:hidden;display:block;background:#000;`;
-    gc.style.cssText = `position:absolute;width:900px;height:540px;top:0;left:0;transform-origin:0 0;transform:translate(${left}px,${top}px) scale(${scale});overflow:hidden;`;
 
     gw.style.cssText = `position:fixed;top:0;left:0;width:${vw}px;height:${vh}px;overflow:hidden;display:block;background:#000;`;
     gc.style.cssText = `position:absolute;width:900px;height:540px;top:0;left:0;transform-origin:0 0;transform:translate(${left}px,${top}px) scale(${scale});overflow:hidden;`;
@@ -2587,7 +2569,7 @@ document.getElementById('bSwitchDevice').addEventListener('click', () => {
     if (cl) cl.style.gap = s.gap + 'px';
     if (cr) cr.style.gap = Math.round(s.gap * 0.6) + 'px';
 
-    requestAnimationFrame(() => requestAnimationFrame(scaleGame));
+    requestAnimationFrame(scaleGame);
   }
   window.applyDeviceLayout = applyDeviceLayout;
 
@@ -2650,6 +2632,11 @@ document.getElementById('bSwitchDevice').addEventListener('click', () => {
   if (bPhone)  bPhone.addEventListener('click',  () => _pick('phone'));
   if (bIpad)   bIpad.addEventListener('click',   () => _pick('tablet'));
   if (bLaptop) bLaptop.addEventListener('click', () => _pick('laptop'));
+
+  // Safety: re-run scaleGame every second on tablet to catch any layout drift
+  setInterval(() => {
+    if (window._deviceType === 'tablet') scaleGame();
+  }, 1000);
 
   initDevicePicker();
 
